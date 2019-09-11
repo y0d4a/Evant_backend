@@ -35,16 +35,16 @@ class TestUsersCrud():
         """ test invalid PUT with bad request 404 """
      
         data = {
-            'username':'ranpa',
-            'email':'radenmaharjo@gmail.com',
+            'username':'mabar',
+            'email':'makan@gmail.com',
             'password':'123456',
             'gender':False,
-            'fullname':'Agatha Ranpa',
+            'fullname':'Agatha',
             'address':'blitar-jombang',
             'phone':'0822222137'
         }
 
-        res = client.put('/api/users/2', data=json.dumps(data),
+        res = client.put('/api/users/7', data=json.dumps(data),
                         content_type='application/json')
         
         if res.status_code != 404:
