@@ -15,8 +15,8 @@ class DateResource (Resource):
     def post(self):
         """this function for add available dates to database"""
 
-        claims = get_jwt_identity()
-        user_id = claims['id']
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
 
 
         parser = reqparse.RequestParser()
