@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restful import Api, Resource, reqparse, marshal
-from flask_jwt_extended import jwt_required, get_jwt_claims
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from .model import Invitations
 from blueprints import db, app
 
@@ -21,8 +21,8 @@ class InvitationsResource(Resource):
         """
         method to get all invitations 
         """
-        claims = get_jwt_claims()
-        user_id = int(jwt_claims['user_id'])
+        identity = get_jwt_identity()
+        user_id = int(identity['user_id'])
 
         invitations_query = Invitations.query.filter_by(invited_id=user_id, status=0).all()
 
@@ -40,8 +40,8 @@ class InvitationsResource(Resource):
         method to invite someone to an event
         """
         parser = reqparse.RequestParser()
-        claims = get_jwt_claims()
-        user_id = int(jwt_claims['user_id'])
+        identity = get_jwt_identity()
+        user_id = int(identity['user_id'])
 
         parser.add_argument('event_id', location='json', required=True)
         parser.add_argument('invited_id', location='json', required=True)
@@ -64,8 +64,8 @@ class InvitationsResource(Resource):
         """
         method to accept invitation
         """
-        claims = get_jwt_claims()
-        user_id = int(jwt_claims['user_id'])
+        identity = get_jwt_identity()
+        user_id = int(identity['user_id'])
 
         invitations_query = Invitations.query.filter_by(event_id=event_id, invited_id=user_id, status=0).first()
 
@@ -88,8 +88,8 @@ class InvitationsRejectResource(Resource):
         """
         method to reject invitation
         """
-        claims = get_jwt_claims()
-        user_id = int(jwt_claims['user_id'])
+        identity = get_jwt_identity()
+        user_id = int(identity['user_id'])
 
         invitations_query = Invitations.query.filter_by(event_id=event_id, invited_id=user_id, status=0).first()
 
@@ -101,5 +101,5 @@ class InvitationsRejectResource(Resource):
 
         return marshal(invitations_query, Invitations.response_fields), 200, {'Content-Type':'application/json'}
 
-api.add_resource(InvitationsResource, '', '/accept')
-api.add_resource(InvitationsRejectResource, '', '/reject')
+api.add_resource(InvitationsResource, '', '/accept/<event_id>')
+api.add_resource(InvitationsRejectResource, '', '/reject/<event_id>')

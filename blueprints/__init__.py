@@ -58,3 +58,4 @@ app.register_blueprint(bp_available_dates, url_prefix='/api/date')
 app.register_blueprint(bp_user, url_prefix='/api/users')
 app.register_blueprint(bp_user_preferences, url_prefix='/api/users/preferences')
 
+db.create_all()

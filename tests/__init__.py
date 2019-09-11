@@ -1,6 +1,7 @@
 import pytest, json, logging
 from flask import Flask, request
 from blueprints.users.model import Users
+from blueprints.invitations.model import Invitations
 from blueprints import db, app 
 from app import cache
 
@@ -18,10 +19,16 @@ def reset_database():
     db.drop_all()
     db.create_all()
 
-    user = Users("mahar", 'maharraden765@gmail.com', "agh765vx765", True, "Raden Panji","Jombang", "082283511672")
+    user = Users("mahar", "maharraden765@gmail.com", "agh765vx765", True, "Raden Panji", "Jombang", "082283511672")
+    user2 = Users("raden", "radenraden765@gmail.com", "agh765vx765", True, "Raden Panji", "Jombang", "082283511673")
+    invitation1 = Invitations(1, 1, 0)
+    invitation2 = Invitations(2, 1, 0)
 
     # save users to database
     db.session.add(user)
+    db.session.add(user2)
+    db.session.add(invitation1)
+    db.session.add(invitation2)
     db.session.commit()
 
 def create_token():
