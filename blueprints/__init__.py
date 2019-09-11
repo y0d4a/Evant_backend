@@ -54,3 +54,4 @@ from blueprints.invitations.resource import bp_invitations
 app.register_blueprint(bp_invitations, url_prefix='/api/invitations')
 app.register_blueprint(bp_user, url_prefix='/api/users')
 
+db.create_all()

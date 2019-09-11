@@ -8,11 +8,11 @@ class Users(db.Model):
     __tablename__ = "users"
     user_id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(100), nullable = False, unique = True)
-    email = db.Column(db.String(255), nullable = False, unique = True)
+    email = db.Column(db.String(100), nullable = False, unique = True)
     password = db.Column(db.String(100), nullable = False)
     gender = db.Column(db.Boolean, nullable = False)
-    fullname = db.Column(db.String(255), nullable = True)
-    address = db.Column(db.String(255), nullable = True)
+    fullname = db.Column(db.String(100), nullable = True)
+    address = db.Column(db.String(100), nullable = True)
     phone = db.Column(db.String(30), nullable = True, unique = True)
 
     response_fields = {
