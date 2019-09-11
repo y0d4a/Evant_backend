@@ -1,5 +1,4 @@
-from . import app, client, cache, create_token, reset_database
-
+from tests import app, client, cache, create_token, reset_database
 import json
 
 class TestInvitationsCrud():
