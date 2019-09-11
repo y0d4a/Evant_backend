@@ -8,4 +8,5 @@ flask-jwt-extended
 requests
 pytest
 flask-cors
+flask-bcrypt
 mock
