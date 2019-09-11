@@ -49,7 +49,9 @@ manager.add_command('db', MigrateCommand)
 # RESOURCES
 #############
 from blueprints.user_preferences.resource import bp_user_preferences
+from blueprints.users.resource import bp_user
+from blueprints.invitations.resource import bp_invitations
 
+app.register_blueprint(bp_invitations, url_prefix='/api/invitations')
+app.register_blueprint(bp_user, url_prefix='/api/users')
 app.register_blueprint(bp_user_preferences, url_prefix='/api/users/preferences')
-
-# db.create_all()
