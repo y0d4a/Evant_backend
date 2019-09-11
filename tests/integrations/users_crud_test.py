@@ -63,7 +63,7 @@ class TestUsersCrud():
             raise ValueError('The res.status_code must be 200, please check your code')
     
     def test_users_invalid_login(self, client):
-        """ test invalid PUT with bad request 401 """
+        """ test invalid POST with bad request 401 """
         
         data = {
             'username':'ranpa16',
@@ -94,7 +94,7 @@ class TestUsersCrud():
             raise ValueError('The res.status_code must be 200, please check your code')
     
     def test_users_invalid_post(self, client):
-        """ test invalid PUT with bad request 400 """
+        """ test invalid POST with bad request 400 """
 
         data = {
             'username':'radanu',
