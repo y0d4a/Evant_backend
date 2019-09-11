@@ -2,5 +2,134 @@ import json
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from sqlalchemy import desc
-from .model import Pembeli
+from .model import Users
 import requests
+
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, get_jwt_claims
+
+from blueprints import db, app, internal_required
+
+bp_user = Blueprint('users', __name__)
+api = Api(bp_user)
+
+
+class UserRequest(Resource):
+    """ Standart user action GET, PUT """
+
+    def get(self):
+        """ Request to Get All users """
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('p', type = int, location = 'args', required = False, default = 1)
+        parser.add_argument('rp', type = int, location = 'args', required = False, default = 25)
+        args = parser.parse_args()
+
+        offset = args['p']*args['rp'] - args['rp']
+
+        qry = Users.query
+
+        qry= qry.limit(args['rp']).offset(offset).all()
+        list_temporary = []
+
+        for row in qry:
+            list_temporary.append(marshal(row, Users.jwt_response_fields))
+        
+        return list_temporary, 200
+
+    
+    def put(self, id):
+        """ User request for editing his/her biodata """
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', location ='json', required=False)
+        parser.add_argument('email', location='json', required=False)
+        parser.add_argument('password', location = 'json', required=False)
+        parser.add_argument('gender', location = 'json', required=False, type = inputs.boolean)
+        parser.add_argument('fullname', location = 'json', required=False)
+        parser.add_argument('address', location = 'json', required=False)
+        parser.add_argument('phone', location = 'json', required=False)
+        args = parser.parse_args()
+
+        qry = Users.query.get(id)
+        if qry is None:
+            return {'status' : 'NOT_FOUND'}, 404
+
+        if args['username'] is not None:
+            qry.username = args['username']
+        if args['email'] is not None:
+            qry.email = args['email']
+        if args['password'] is not None:
+            qry.password = args['password']
+        if args['gender'] is not None:
+            qry.gender = args['gender']
+        if args['fullname'] is not None:
+            qry.fullname = args['fullname']
+        if args['address'] is not None:
+            qry.address = args['address']
+        if args['phone'] is not None:
+            qry.address = args['phone']
+
+        db.session.commit()
+
+        return marshal(qry, Users.jwt_response_fields), 200
+    
+
+class UserLogin(Resource):
+    """ User login for getting authentication """
+
+    def post(self):
+        """ user ask token auth for login """
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', location='json', required=True, help = "Your input username is invalid")
+        parser.add_argument('password', location='json', required=True, help = "Your input password is invalid")
+        args = parser.parse_args()
+
+        user_query = Users.query.filter_by(username=args['username']).filter_by(password=args['password']).first()
+        user = marshal(user_query, Users.jwt_response_fields)
+
+        if user_query is not None:
+            token = create_access_token(identity=user)
+        else:
+            return {'status': 'UNAUTHORIZED', 'message': 'invalid key or secret'}, 401
+
+        return {'token': token, "user":user}, 200
+
+
+class UserRefreshToken(Resource):
+    """ User refresh token for auth """
+
+    @jwt_required
+    def post(self):
+        """ user ask renewable token """
+        current_user = get_jwt_identity()
+        token = create_access_token(identity = current_user)
+        return {'token': token}, 200
+
+
+class UserMakeRegistration(Resource):
+    """ User create account (register) """
+
+    def post(self):
+        """ User make his/her account """
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', location='json', required=True)
+        parser.add_argument('email', location='json', required=True)
+        parser.add_argument('password', location='json', required=True)
+        parser.add_argument('gender', location='json', required=True, type = inputs.boolean)
+        parser.add_argument('fullname', location='json', required=False)
+        parser.add_argument('address', location='json', required=False)
+        parser.add_argument('address', location='json', required=False)
+
+        args = parser.parse_args()
+
+        #untuk mendapatkan identitas pelapak yang login
+        pelapak = get_jwt_claims()
+
+        barang = Barang(args['nama_barang'], args['tipe_barang'], args['deskripsi_barang'], args['harga_barang'], pelapak['user_name'], args['tahun_barang'], args['image_barang'])
+        db.session.add(barang)
+        db.session.commit()
+
+        app.logger.debug('DEBUG : %s', barang)
+
+        return marshal(barang, Barang.response_fields), 200, {'Content-Type' : 'application/json'}
