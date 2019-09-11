@@ -17,7 +17,8 @@ class UserPreferencesResources (Resource) :
         """Input user preferences to certain event_id"""	
 
         identity = get_jwt_identity()
-        user_id = claims['user_id']
+        user_id = identity['user_id']
+
        
 
         parser = reqparse.RequestParser()
