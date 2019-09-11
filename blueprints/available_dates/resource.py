@@ -15,8 +15,8 @@ class DateResource (Resource):
     def post(self):
         """this function for add available dates to database"""
 
-        claims = get_jwt_identity()
-        user_id = claims['id']
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
 
 
         parser = reqparse.RequestParser()
@@ -52,7 +52,21 @@ class DateResource (Resource):
         return {'status': 'DELETED'}, 200
 
 
-    # @jwt_required
-    # def get():
+    @jwt_required
+    def get(self):
+        """this function for marking calender depend on available dates"""
+
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
+
+        dates_query = AvailableDates.query.filter_by(user_id=user_id)
+        dates = []
+        
+        for date in dates_query.all():
+            dates.append(marshal(date, AvailableDates.response_fields))
+
+        app.logger.debug('DEBUG : %s', dates_query)
+        
+        return dates, 200, {'Content-Type': 'application/json'}
 
 api.add_resource(DateResource, '')
