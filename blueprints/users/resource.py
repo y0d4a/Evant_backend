@@ -1,4 +1,5 @@
 import json
+import re
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from sqlalchemy import desc
@@ -6,7 +7,7 @@ from .model import Users
 
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, get_jwt_claims
 
-from blueprints import db, app
+from blueprints import db, app, bcrypt
 
 bp_user = Blueprint('users', __name__)
 api = Api(bp_user)
@@ -84,6 +85,7 @@ class UserLogin(Resource):
         parser.add_argument('password', location='json', required=True, help = "Your input password is invalid")
         args = parser.parse_args()
 
+
         user_query = Users.query.filter_by(username=args['username']).filter_by(password=args['password']).first()
         user = marshal(user_query, Users.jwt_response_fields)
 
@@ -121,13 +123,20 @@ class UserMakeRegistration(Resource):
         parser.add_argument('phone', location='json', required=False)
         args = parser.parse_args()
 
-        user = Users(args['username'], args['email'], args['password'], args['gender'], args['fullname'], args['address'], args['phone'])
-        db.session.add(user)
-        db.session.commit()
+        pattern = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        result = re.match(pattern, args['email'])
+        
+        if result:
 
-        app.logger.debug('DEBUG : %s', user)
+            user = Users(args['username'], args['email'], args['password'], args['gender'], args['fullname'], args['address'], args['phone'])
+            db.session.add(user)
+            db.session.commit()
 
-        return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}
+            app.logger.debug('DEBUG : %s', user)
+
+            return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}
+        else:
+            return "Your Input Email Has Been Wrong", 400
 
 api.add_resource(UserRequest, '', '/<id>')
 api.add_resource(UserLogin, '/login')
