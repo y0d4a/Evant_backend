@@ -49,5 +49,7 @@ manager.add_command('db', MigrateCommand)
 # RESOURCES
 #############
 from blueprints.invitations.resource import bp_invitations
+from blueprints.available_dates.resource import bp_available_dates
 
 app.register_blueprint(bp_invitations, url_prefix='/api/invitations')
+app.register_blueprint(bp_available_dates, url_prefix='/api/date')
