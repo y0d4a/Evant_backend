@@ -13,11 +13,11 @@ class UserPreferencesResources (Resource) :
     """POST and GET every user preferences"""
 
     @jwt_required
-    def post(self,event_id):
+    def post(self):
         """Input user preferences to certain event_id"""	
 
-        claims = get_jwt_identity()
-        user_id = claims['id']
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
        
 
         parser = reqparse.RequestParser()
@@ -54,4 +54,4 @@ class UserPreferencesResources (Resource) :
         return preferences, 200, {'Content-Type': 'application/json'}
 
 
-api.add_resource(UserPreferencesResources, '/<event_id>')
+api.add_resource(UserPreferencesResources, '', '/<event_id>')
