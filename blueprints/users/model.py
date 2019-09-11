@@ -23,7 +23,7 @@ class Users(db.Model):
         'email' : fields.String,
         'password' : fields.String,
         'phone' : fields.String,
-        'gender' : fields.Integer,
+        'gender' : fields.Boolean,
     }
 
     jwt_response_fields = {
@@ -33,7 +33,7 @@ class Users(db.Model):
         'address' : fields.String,
         'email' : fields.String,
         'phone' : fields.String,
-        'gender' : fields.Integer,
+        'gender' : fields.Boolean,
     }
 
     def __init__(self, username, email, password, gender, fullname = None, address = None, phone = None):

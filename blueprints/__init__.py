@@ -48,3 +48,7 @@ manager.add_command('db', MigrateCommand)
 #############
 # RESOURCES
 #############
+from blueprints.users.resource import bp_user
+
+
+app.register_blueprint(bp_user, url_prefix='/users')

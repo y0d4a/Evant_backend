@@ -7,7 +7,7 @@ import requests
 
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, get_jwt_claims
 
-from blueprints import db, app, internal_required
+from blueprints import db, app
 
 bp_user = Blueprint('users', __name__)
 api = Api(bp_user)
@@ -119,17 +119,18 @@ class UserMakeRegistration(Resource):
         parser.add_argument('gender', location='json', required=True, type = inputs.boolean)
         parser.add_argument('fullname', location='json', required=False)
         parser.add_argument('address', location='json', required=False)
-        parser.add_argument('address', location='json', required=False)
-
+        parser.add_argument('phone', location='json', required=False)
         args = parser.parse_args()
 
-        #untuk mendapatkan identitas pelapak yang login
-        pelapak = get_jwt_claims()
-
-        barang = Barang(args['nama_barang'], args['tipe_barang'], args['deskripsi_barang'], args['harga_barang'], pelapak['user_name'], args['tahun_barang'], args['image_barang'])
-        db.session.add(barang)
+        user = Users(args['username'], args['email'], args['password'], args['gender'], args['fullname'], args['address'], args['phone'])
+        db.session.add(user)
         db.session.commit()
 
-        app.logger.debug('DEBUG : %s', barang)
+        app.logger.debug('DEBUG : %s', user)
 
-        return marshal(barang, Barang.response_fields), 200, {'Content-Type' : 'application/json'}
+        return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}
+
+api.add_resource(UserRequest, '', '/<id>')
+api.add_resource(UserLogin, '/login')
+api.add_resource(UserRefreshToken, '/refresh')
+api.add_resource(UserMakeRegistration, '/register')
