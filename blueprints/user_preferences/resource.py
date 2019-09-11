@@ -2,8 +2,8 @@ import json
 from flask import Blueprint
 from flask_restful import Api, Resource, reqparse, marshal
 from .model import UserPreferences
-from flask_jwt_extended import get_jwt_claims, jwt_required
-from blueprints import db
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from blueprints import db, app
 
 bp_user_preferences = Blueprint('user_preferences', __name__)
 api = Api(bp_user_preferences)
@@ -16,16 +16,17 @@ class UserPreferencesResources (Resource) :
     def post(self,event_id):
         """Input user preferences to certain event_id"""	
 
-        claims = get_jwt_claims()
+        claims = get_jwt_identity()
         user_id = claims['id']
+       
 
         parser = reqparse.RequestParser()
-        parser.add_argument('event_id', location='json')
-        parser.add_argument('preference', location='json')
+        parser.add_argument('event_id', location='json', required=True)
+        parser.add_argument('preference', location='json', required=True)
 
         args = parser.parse_args()
 
-        user_preferences = UserPreferences(user_id,args['event_id'],args['preferences'])
+        user_preferences = UserPreferences(user_id,args['event_id'],args['preference'])
         db.session.add(user_preferences)
         db.session.commit()
 
@@ -53,4 +54,4 @@ class UserPreferencesResources (Resource) :
         return preferences, 200, {'Content-Type': 'application/json'}
 
 
-api.add_resource(UserPreferencesResources, '/api/users/preferences/<event_id>')
+api.add_resource(UserPreferencesResources, '/<event_id>')
