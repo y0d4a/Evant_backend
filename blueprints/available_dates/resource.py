@@ -2,21 +2,22 @@ import json
 from flask import Blueprint
 from flask_restful import Api, Resource, reqparse, marshal
 from .model import AvailableDates
-from flask_jwt_extended import get_jwt_claims, jwt_required
-from blueprints import db
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from blueprints import db, app
 
-bp_available_dates = Blueprint('available_dates', __name__)
+bp_available_dates = Blueprint("dates", __name__)
 api = Api(bp_available_dates)
 
 class DateResource (Resource):
-    """Class for add date, delete date, and generate result date""""
-    
+    """Class for add date, delete date, and generate result date"""
+
     @jwt_required
     def post(self):
         """this function for add available dates to database"""
 
-        claims = get_jwt_claims()
+        claims = get_jwt_identity()
         user_id = claims['id']
+
 
         parser = reqparse.RequestParser()
         parser.add_argument('date', location='json')
@@ -26,15 +27,14 @@ class DateResource (Resource):
         db.session.add(available_dates)
         db.session.commit()
         
-         app.logger.debug('DEBUG : %s', user)
+        app.logger.debug('DEBUG : %s', available_dates)
 
-        return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}
+        return marshal(available_dates, AvailableDates.response_fields), 200, {'Content-Type' : 'application/json'}
 
 
     @jwt_required
-    def delete(self, id):
-        """this function for delete available date by id""""
-
+    def delete(self):
+        """this function for delete available date by id"""
 
         parser = reqparse.RequestParser()
         parser.add_argument('date', location='json')
@@ -48,9 +48,8 @@ class DateResource (Resource):
         db.session.delete(available_dates)
         db.session.commit()
 
+        app.logger.debug('DEBUG : %s', available_dates)
         return {'status': 'DELETED'}, 200
-
-
 
 
     # @jwt_required

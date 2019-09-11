@@ -2,7 +2,9 @@ from blueprints import db
 from flask_restful import fields
 
 class AvailableDates(db.Model):
-    __tablename__="available_dates"
+    """class for available_dates"""
+
+    __tablename__= "dates"
 
     user_id = db.Column(db.Integer, nullable = False, primary_key=True)
     date = db.Column(db.String(25), nullable= False, primary_key=True)
