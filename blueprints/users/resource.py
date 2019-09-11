@@ -34,7 +34,7 @@ class UserRequest(Resource):
         for row in user_qry:
             list_temporary.append(marshal(row, Users.jwt_response_fields))
         
-        return list_temporary, 200
+        return list_temporary, 200, {'Content-Type' : 'application/json'}
 
     
     def put(self, id):
@@ -71,7 +71,7 @@ class UserRequest(Resource):
 
         db.session.commit()
 
-        return marshal(user_qry, Users.jwt_response_fields), 200
+        return marshal(user_qry, Users.jwt_response_fields), 200, {'Content-Type' : 'application/json'}
     
 
 class UserLogin(Resource):
@@ -93,7 +93,7 @@ class UserLogin(Resource):
         else:
             return {'status': 'UNAUTHORIZED', 'message': 'invalid key or secret'}, 401
 
-        return {'token': token, "user":user}, 200
+        return {'token': token, "user":user}, 200, {'Content-Type' : 'application/json'}
 
 
 class UserRefreshToken(Resource):
@@ -104,7 +104,7 @@ class UserRefreshToken(Resource):
         """ user ask renewable token """
         current_user = get_jwt_identity()
         token = create_access_token(identity = current_user)
-        return {'token': token}, 200
+        return {'token': token}, 200, {'Content-Type' : 'application/json'}
 
 
 class UserMakeRegistration(Resource):
