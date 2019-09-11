@@ -8,9 +8,9 @@ class Invitations(db.Model):
 
     __tablename__ = 'invitations'
 
-    event_id = db.Column(db.Integer, primary_key = True)
-    invited_id = db.Column(db.Integer, primary_key = True)
-    status = db.Column(db.Integer, nullable = False)
+    event_id = db.Column(db.Integer, primary_key=True)
+    invited_id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.Integer, nullable=False)
 
     response_fields = {
         'event_id':fields.Integer,
