@@ -33,7 +33,7 @@ def create_token():
         }
         # do request
         req = call_client(request)
-        res = req.post('/login', data=json.dumps(data), content_type='application/json')
+        res = req.post('/api/users/login', data=json.dumps(data), content_type='application/json')
 
         # store response
         res_json = json.loads(res.data)

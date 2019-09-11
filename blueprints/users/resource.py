@@ -26,12 +26,12 @@ class UserRequest(Resource):
 
         offset = args['p']*args['rp'] - args['rp']
 
-        qry = Users.query
+        user_qry = Users.query
 
-        qry= qry.limit(args['rp']).offset(offset).all()
+        user_qry= user_qry.limit(args['rp']).offset(offset).all()
         list_temporary = []
 
-        for row in qry:
+        for row in user_qry:
             list_temporary.append(marshal(row, Users.jwt_response_fields))
         
         return list_temporary, 200
@@ -50,28 +50,28 @@ class UserRequest(Resource):
         parser.add_argument('phone', location = 'json', required=False)
         args = parser.parse_args()
 
-        qry = Users.query.get(id)
-        if qry is None:
+        user_qry = Users.query.get(id)
+        if user_qry is None:
             return {'status' : 'NOT_FOUND'}, 404
 
         if args['username'] is not None:
-            qry.username = args['username']
+            user_qry.username = args['username']
         if args['email'] is not None:
-            qry.email = args['email']
+            user_qry.email = args['email']
         if args['password'] is not None:
-            qry.password = args['password']
+            user_qry.password = args['password']
         if args['gender'] is not None:
-            qry.gender = args['gender']
+            user_qry.gender = args['gender']
         if args['fullname'] is not None:
-            qry.fullname = args['fullname']
+            user_qry.fullname = args['fullname']
         if args['address'] is not None:
-            qry.address = args['address']
+            user_qry.address = args['address']
         if args['phone'] is not None:
-            qry.address = args['phone']
+            user_qry.address = args['phone']
 
         db.session.commit()
 
-        return marshal(qry, Users.jwt_response_fields), 200
+        return marshal(user_qry, Users.jwt_response_fields), 200
     
 
 class UserLogin(Resource):
