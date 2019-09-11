@@ -14,9 +14,9 @@ class Events(db.Model):
     place_location = db.Column(db.String(100), nullable = True)
     start_date = db.Column(db.String(100), nullable = True)
     end_date = db.Column(db.String(100), nullable = True)
-    start_date_parameter = db.Column(db.String(100), nullable = True)   
-    end_date_parameter = db.Column(db.String(100), nullable = True)
-    duration = db.Column(db.Integer, nullable = True)
+    start_date_parameter = db.Column(db.String(100), nullable = False)   
+    end_date_parameter = db.Column(db.String(100), nullable = False)
+    duration = db.Column(db.Integer, nullable = False)
     status = db.Column(db.Integer, nullable = True )
 
     response_field = {
@@ -34,7 +34,7 @@ class Events(db.Model):
         'status': db.Boolean
     }
 
-    def __init__(self, creator_id, category = None, event_name = None, place_name = None, place_location = None, start_date = None, end_date = None, start_date_parameter = None, end_date_parameter = None, duration = None, status):
+    def __init__(self, creator_id, category = None, event_name = None, place_name = None, place_location = None, start_date = None, end_date = None, start_date_parameter, end_date_parameter, duration, status):
         self.creator_id = creator_id
         self.category = category
         self.event_name = event_name
