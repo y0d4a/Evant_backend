@@ -18,6 +18,7 @@ class UserPreferencesResources (Resource) :
 
         identity = get_jwt_identity()
         user_id = identity['user_id']
+
        
 
         parser = reqparse.RequestParser()
@@ -45,7 +46,6 @@ class UserPreferencesResources (Resource) :
         preferences_event = user_preferences.filter_by(event_id=event_id)
         preferences = []
         
-        app.logger.debug('DEBUG : %s', user_preferences)
         for preference in preferences_event.all():
             preferences.append(marshal(preference, UserPreferences.response_fields))
 
