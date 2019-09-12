@@ -94,7 +94,19 @@ class EventsResource(Resource):
         db.session.commit()
 
         return marshal(event_query, Events.response_fields), 200, {'Content-Type' : 'application/json'}
+    
+    @jwt_required
+    def get(self, event_id):
 
+        """
+        method to get event detail by id
+        """
+        event_query = Events.query.get(event_id)
+
+        if event_query is None:
+            return {'status':'event not found'}, 404
+        
+        return marshal(event_query, Events.response_fields), 200, {'Content-Type' : 'application/json'}
 
 
 api.add_resource(EventsResource, '','/<event_id>')
