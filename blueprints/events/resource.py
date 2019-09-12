@@ -109,6 +109,21 @@ class EventsResource(Resource):
         
         return marshal(event_query, Events.response_fields), 200, {'Content-Type' : 'application/json'}
 
+    @jwt_required
+    def delete(self, event_id):
+
+        """
+        method to delete event based on event_id
+        """
+        event_query = Events.query.get(event_id)
+
+        if event_query is None:
+            return {'status':'event not found'}, 404
+        
+        db.session.delete(event_query)
+        db.session.commit()
+
+        return {'status':'delete success'}, 200
 
 class EventsOngoingResource(Resource):
 
