@@ -36,7 +36,7 @@ class Events(db.Model):
         'duration': fields.Integer
     }
 
-    def __init__(self, creator_id, category, event_name, status, place_name = None, place_location = None, start_date = None, end_date = None, start_date_parameter = None, end_date_parameter = None, duration = None):
+    def __init__(self, creator_id, category, event_name, status, place_name = None, place_location = None, start_date = None, end_date = None, start_date_parameter = None, end_date_parameter = None, preference = None, duration = None):
         self.creator_id = creator_id
         self.category = category
         self.event_name = event_name

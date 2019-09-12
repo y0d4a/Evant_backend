@@ -1,8 +1,10 @@
 from flask import Blueprint
+import operator
 from flask_restful import Api, Resource, reqparse, marshal
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .model import Events
 from blueprints.invitations.model import Invitations
+from blueprints.available_dates.model import AvailableDates
 from blueprints.user_preferences.model import UserPreferences
 from blueprints import db, app
 
@@ -168,36 +170,81 @@ class EventsHistoryResource(Resource):
         
         return list_event, 200, {'Content-Type' : 'application/json'}
 
-class EventsAddDominancePreferenceResource(Resource):
+class EventsPreferenceResource(Resource):
 
     """
     class to edit/add preference which is the the dominant preference from all member
     """
     
     @jwt_required
-    def put(self, event_id):
+    def get(self, event_id):
         """
-        method to get all ongoing events
+        function to get dominant preferences
         """
         creator = get_jwt_identity()
         preferences = UserPreferences.query.filter_by(event_id = event_id)
+        
+        '''
+        get all user preference
+        '''
+        list_for_save_preferences = []
+        for value in preferences:
+            new_value = marshal(value, UserPreferences.response_fields)
+            list_for_save_preferences.append(new_value['preference'])
 
         '''
-        find the difference preference in preferences
+        find the difference preference in preferences
         '''
         list_different_preferences = []
-        for value in preferences:
+        for value in list_for_save_preferences:
             if value not in list_different_preferences:
                 list_different_preferences.append(value)
         
         dictionary_count_value = {}
         for value in list_different_preferences:
-            dictionary_count_value[value] = preferences.count(value)
+            dictionary_count_value[value] = list_for_save_preferences.count(value)
+        
+        dominant_preference = max(dictionary_count_value.items(), key=operator.itemgetter(1))[0]
 
-        return dictionary_count_value, 200, {'Content-Type' : 'application/json'}
+        return {"dominant_preference" : dominant_preference, "dictionary_count_value": dictionary_count_value}, 200, {'Content-Type' : 'application/json'}
+
+class EventsDatesGenerateResource(Resource):
+
+    """
+    class to generate date    """
+
+    def get(self, event_id):
+        '''
+        get creator_id by event id
+        '''
+        creator_query = Events.query.get(event_id)
+        creator = marshal(creator_query, Events.response_fields)
+        creator_id = creator['creator_id']
+
+        # list_of_id = [creator_id]
+        list_of_id = []
+        invitation_query = Invitations.query.filter_by(event_id = event_id)
+        for invitation in invitation_query:
+            invitation_new = marshal(invitation, Invitations.response_fields)
+            list_of_id.append(invitation_new['invited_id'])
+
+        dictionary_date = {}
+        for user_id in list_of_id:
+            date = AvailableDates.query.filter_by(user_id = user_id)
+            list_temporary_date = []
+            for value in date:
+                value_new = marshal(value, AvailableDates.response_fields)
+                list_temporary_date.append(int(value_new['date'][0:2]))
+            dictionary_date[user_id] = list_temporary_date
+
+
+        return dictionary_date, 200
+
 
 api.add_resource(EventsResource, '','/<event_id>')
 api.add_resource(EventsOngoingResource, '/ongoing')
 api.add_resource(EventsHistoryResource, '/history')
-api.add_resource(EventsAddDominancePreferenceResource, '/dominant_preference')
+api.add_resource(EventsPreferenceResource, '/dominant_preference/<event_id>')
+api.add_resource(EventsDatesGenerateResource, '/generate_date/<event_id>')
+
 
