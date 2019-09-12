@@ -109,6 +109,7 @@ class EventsResource(Resource):
         
         return marshal(event_query, Events.response_fields), 200, {'Content-Type' : 'application/json'}
 
+
 class EventsOngoingResource(Resource):
 
     """
@@ -127,16 +128,44 @@ class EventsOngoingResource(Resource):
         invitation_query = Invitations.query.filter_by(invited_id=user_id, status=1).all()
 
         list_event = []
+
         for invitaion in invitation_query:
             event_id = invitaion.event_id
             event_query = Events.query.get(event_id)
-            list_event.append(marshal(event_query, Events.response_fields))
+            if event_query.status == 0:
+                list_event.append(marshal(event_query, Events.response_fields))
         
         return list_event, 200, {'Content-Type' : 'application/json'}
 
 
+class EventsHistoryResource(Resource):
+
+    """
+    method to edit events
+    """
+    
+    @jwt_required
+    def get(self):
+
+        """
+        method to get all ongoing events
+        """
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
+
+        invitation_query = Invitations.query.filter_by(invited_id=user_id, status=1).all()
+
+        list_event = []
+
+        for invitaion in invitation_query:
+            event_id = invitaion.event_id
+            event_query = Events.query.get(event_id)
+            if event_query.status == 1:
+                list_event.append(marshal(event_query, Events.response_fields))
+        
+        return list_event, 200, {'Content-Type' : 'application/json'}
+
 
 api.add_resource(EventsResource, '','/<event_id>')
-
-
-        
+api.add_resource(EventsOngoingResource, '/ongoing')
+api.add_resource(EventsHistoryResource, '/history')
