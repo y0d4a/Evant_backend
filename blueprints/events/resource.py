@@ -128,7 +128,7 @@ class EventsResource(Resource):
 class EventsOngoingResource(Resource):
 
     """
-    method to edit events
+    class for ongoing events
     """
     
     @jwt_required
@@ -156,14 +156,14 @@ class EventsOngoingResource(Resource):
 class EventsHistoryResource(Resource):
 
     """
-    method to edit events
+    class for history events
     """
     
     @jwt_required
     def get(self):
 
         """
-        method to get all ongoing events
+        method to get past events
         """
         identity = get_jwt_identity()
         user_id = identity['user_id']
