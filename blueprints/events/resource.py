@@ -165,7 +165,6 @@ class EventsHistoryResource(Resource):
         
         return list_event, 200, {'Content-Type' : 'application/json'}
 
-
 api.add_resource(EventsResource, '','/<event_id>')
 api.add_resource(EventsOngoingResource, '/ongoing')
 api.add_resource(EventsHistoryResource, '/history')
