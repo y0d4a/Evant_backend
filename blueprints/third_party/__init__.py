@@ -8,7 +8,7 @@ from blueprints.events.model import Events
 bp_third_party = Blueprint('third_party',__name__)
 api = Api(bp_third_party)
 
-class GetPlaceToEat(Resource):
+class RecommendationPlaceToEat(Resource):
     """Class to get recommendation place depend on user preference"""
 
     zmt_host = 'https://developers.zomato.com/api/v2.1'
@@ -42,7 +42,7 @@ class GetPlaceToEat(Resource):
 
 
 
-class GetPlaceToVacation(Resource):
+class RecommendationPlaceToVacation(Resource):
     """Class to get recommendation place depend on user preference"""
 
     holiday_host = 'https://opentripmap-places-v1.p.rapidapi.com/en/places/bbox'
@@ -98,7 +98,7 @@ class GetPlaceToVacation(Resource):
   
     
 
-class GetPlaceToHike(Resource):
+class RecommendationPlaceToHike(Resource):
     """Class to get recommendation hiking place depend on user preference"""
 
     hiking_host = 'https://www.hikingproject.com/data/get-trails'
