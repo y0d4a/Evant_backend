@@ -56,6 +56,7 @@ from blueprints.invitations.resource import bp_invitations
 from blueprints.available_dates.resource import bp_available_dates
 from blueprints.categories.resource import bp_categories
 from blueprints.events.resource import bp_events
+from blueprints.third_party import bp_third_party
 
 
 app.register_blueprint(bp_invitations, url_prefix='/api/invitations')
@@ -64,6 +65,8 @@ app.register_blueprint(bp_user, url_prefix='/api/users')
 app.register_blueprint(bp_user_preferences, url_prefix='/api/users/preferences')
 app.register_blueprint(bp_categories, url_prefix='/api/category')
 app.register_blueprint(bp_events, url_prefix='/api/events')
+app.register_blueprint(bp_third_party, url_prefix='/api/recommendation')
+
 
 
 db.create_all()
