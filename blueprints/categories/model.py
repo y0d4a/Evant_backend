@@ -6,8 +6,8 @@ class Categories (db.Model):
 
     __tablename__= "categories"
 
-    preference = db.Column(db.String(250), nullable = False, primary_key=True)
-    category = db.Column(db.String(250), nullable= False)
+    preference = db.Column(db.String(100), nullable = False, primary_key=True)
+    category = db.Column(db.String(100), nullable= False)
 
     response_fields = {
         'preferences'  : fields.String,

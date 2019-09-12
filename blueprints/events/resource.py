@@ -42,7 +42,62 @@ class EventsResource(Resource):
 
         return marshal(event, Events.response_fields), 200, {'Content-Type':'application/json'}
 
-api.add_resource(EventsResource, '')
+    @jwt_required
+    def put(self, event_id):
+
+        """
+        method to edit events
+        """
+        parser = reqparse.RequestParser()
+        identity = get_jwt_identity()
+        creator_id = int(identity['user_id'])
+
+        parser.add_argument('category', location='json', required=False)
+        parser.add_argument('event_name', location='json', required=False)
+        parser.add_argument('status', location='json', required=False)
+        parser.add_argument('place_name', location='json', required=False)
+        parser.add_argument('place_location', location='json', required=False)
+        parser.add_argument('start_date', location='json', required=False)
+        parser.add_argument('end_date', location='json', required=False)
+        parser.add_argument('start_date_parameter', location='json', required=False)
+        parser.add_argument('end_date_parameter', location='json', required=False)
+        parser.add_argument('duration', location='json', required=False)
+
+        event_data = parser.parse_args()
+
+        event_query = Events.query.get(event_id)
+
+        if event_query is None:
+            return {'status':'event not found'}, 404
+        
+        if event_data['category'] is not None:
+            event_query.category = event_data['category'] 
+        if event_data['event_name'] is not None:
+            event_query.event_name = event_data['event_name'] 
+        if event_data['status'] is not None:
+            event_query.status = event_data['status'] 
+        if event_data['place_name'] is not None:
+            event_query.place_name = event_data['place_name']
+        if event_data['place_location'] is not None:
+            event_query.place_location = event_data['place_location'] 
+        if event_data['start_date'] is not None:
+            event_query.start_date = event_data['start_date'] 
+        if event_data['end_date'] is not None:
+            event_query.end_date = event_data['end_date'] 
+        if event_data['start_date_parameter'] is not None:
+            event_query.start_date_parameter = event_data['start_date_parameter'] 
+        if event_data['end_date_parameter'] is not None:
+            event_query.end_date_parameter = event_data['end_date_parameter'] 
+        if event_data['duration'] is not None:
+            event_query.duration = event_data['duration']  
+        
+        db.session.commit()
+
+        return marshal(event_query, Events.response_fields), 200, {'Content-Type' : 'application/json'}
+
+
+
+api.add_resource(EventsResource, '','/<event_id>')
 
 
         
