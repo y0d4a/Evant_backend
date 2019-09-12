@@ -49,6 +49,3 @@ class Events(db.Model):
         self.end_date_parameter = end_date_parameter
         self.preference = preference
         self.duration = duration
-
-    def __repr__(self):
-        return '<Events %r>' % self.event_id
