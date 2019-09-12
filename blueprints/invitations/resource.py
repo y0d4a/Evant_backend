@@ -2,7 +2,8 @@ from flask import Blueprint
 from flask_restful import Api, Resource, reqparse, marshal
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .model import Invitations
-from blueprints.events.model import Events 
+from blueprints.events.model import Events
+from blueprints.users.model import Users
 from blueprints import db, app
 
 import json
@@ -25,14 +26,34 @@ class InvitationsResource(Resource):
         identity = get_jwt_identity()
         user_id = int(identity['user_id'])
 
+
         invitations_query = Invitations.query.filter_by(invited_id=user_id, status=0).all()
 
         if invitations_query is None:
             return {'status':'no invitations'}, 200
+        
+        list_event_temporrary = []
 
-        invitations_json = marshal(invitations_query, Invitations.response_fields)
+        for event in invitations_query:
+            event_new = marshal(event, Invitations.response_fields)
+            event_id = event_new['event_id']
+            from_event_table = Events.query.get(event_id)
+            from_event_table = marshal(from_event_table, Events.response_fields)
+            
+            creator = Users.query.get(from_event_table['creator_id'])
+            creator = marshal(creator, Users.response_fields)
 
-        return invitations_json, 200, {'Content-Type':'application/json'}
+            response_fields_dummy = {
+                'event_id' : from_event_table['event_id'],
+                'event_name' : from_event_table['event_name'],
+                'invited_id' : event_new['invited_id'],
+                'creator_id' : creator['user_id'],
+                'username_creator' : creator['username'],
+                'status' : event_new['status']
+            }
+            list_event_temporrary.append(response_fields_dummy)
+    
+        return list_event_temporrary, 200, {'Content-Type':'application/json'}
     
     @jwt_required
     def post(self):
