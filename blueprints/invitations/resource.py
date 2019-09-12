@@ -37,9 +37,12 @@ class InvitationsResource(Resource):
         for event in invitations_query:
             event_new = marshal(event, Invitations.response_fields)
             event_id = event_new['event_id']
+
+            '''take event object with that event is in user invited'''
             from_event_table = Events.query.get(event_id)
             from_event_table = marshal(from_event_table, Events.response_fields)
             
+            '''take user object in creator condition'''
             creator = Users.query.get(from_event_table['creator_id'])
             creator = marshal(creator, Users.response_fields)
 
@@ -65,7 +68,7 @@ class InvitationsResource(Resource):
         identity = get_jwt_identity()
         user_id = int(identity['user_id'])
 
-        # parser.add_argument('event_id', location='json', required=True)
+        # parser.add_argument('event_id', location='json', required=False)
         parser.add_argument('invited_id', location='json', required=True)
         invitation_data = parser.parse_args()
 

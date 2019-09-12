@@ -32,8 +32,7 @@ class TestInvitationsCrud():
     def test_invitations_post_valid(self, client):
         token = create_token()
         data = {
-            "event_id" : 3,
-            "invited_id": 2
+            "invited_id": 5
         }
         res = client.post('/api/invitations', data=json.dumps(data),
                         headers={'Authorization':'Bearer ' + token},
