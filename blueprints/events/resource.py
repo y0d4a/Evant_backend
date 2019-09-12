@@ -62,6 +62,7 @@ class EventsResource(Resource):
         parser.add_argument('end_date', location='json', required=False)
         parser.add_argument('start_date_parameter', location='json', required=False)
         parser.add_argument('end_date_parameter', location='json', required=False)
+        parser.add_argument('preference', location='json', required=False)
         parser.add_argument('duration', location='json', required=False)
 
         event_data = parser.parse_args()
@@ -88,7 +89,9 @@ class EventsResource(Resource):
         if event_data['start_date_parameter'] is not None:
             event_query.start_date_parameter = event_data['start_date_parameter'] 
         if event_data['end_date_parameter'] is not None:
-            event_query.end_date_parameter = event_data['end_date_parameter'] 
+            event_query.end_date_parameter = event_data['end_date_parameter']
+        if event_data['preference'] is not None:
+            event_query.preference = event_data['preference'] 
         if event_data['duration'] is not None:
             event_query.duration = event_data['duration']  
         

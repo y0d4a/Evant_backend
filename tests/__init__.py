@@ -24,6 +24,7 @@ def reset_database():
     user = Users("mahar", "maharraden765@gmail.com", "agh765vx765", True, "Raden Panji", "Jombang", "082283511672")
     user2 = Users("raden", "radenraden765@gmail.com", "agh765vx765", True, "Raden Panji", "Jombang", "082283511673")
     invitation1 = Invitations(1, 1, 0)
+    invitation2 = Invitations(2, 2, 1)
     invitation2 = Invitations(2, 1, 0)
 
     event1 = Events(1, "LIBURAN", "jalan-jalan ke mall", 0)

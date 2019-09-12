@@ -17,6 +17,7 @@ class Events(db.Model):
     end_date = db.Column(db.String(100), nullable = True)
     start_date_parameter = db.Column(db.String(100), nullable = True)   
     end_date_parameter = db.Column(db.String(100), nullable = True)
+    preference = db.Column(db.String(100), nullable = True)
     duration = db.Column(db.Integer, nullable = True)
 
     response_fields = {
@@ -31,6 +32,7 @@ class Events(db.Model):
         'end_date': fields.String,
         'start_date_parameter': fields.String,
         'end_date_parameter': fields.String,
+        'preference': fields.String,
         'duration': fields.Integer
     }
 
@@ -45,6 +47,7 @@ class Events(db.Model):
         self.end_date = end_date
         self.start_date_parameter = start_date_parameter
         self.end_date_parameter = end_date_parameter
+        self.preference = preference
         self.duration = duration
 
     def __repr__(self):
