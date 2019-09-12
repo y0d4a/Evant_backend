@@ -1,4 +1,7 @@
 from flask import Blueprint
+# from datetime import timedelta, date
+import json
+import datetime
 import operator
 from flask_restful import Api, Resource, reqparse, marshal
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -236,6 +239,49 @@ class EventsDatesGenerateResource(Resource):
                 value_new = marshal(value, AvailableDates.response_fields)
                 list_temporary_date.append(int(value_new['date'][0:2]))
             dictionary_date[user_id] = list_temporary_date
+
+        event_query = Events.query.get(event_id)
+        event = marshal(event_query, Events.response_fields)
+        duration = event['duration']
+
+        start_date_parameter = event['start_date_parameter']
+        new_dt_start = start_date_parameter[:19]
+        end_date_parameter = event['end_date_parameter']
+        new_dt_end = end_date_parameter[:19]
+                
+        # start_day = int(start_date_parameter[0:2])
+        # start_month = int(start_date_parameter[3:5])
+        # start_year = int(start_date_parameter[6:10])
+
+        # end_day = int(end_date_parameter[0:2])
+        # end_month = int(end_date_parameter[3:5])
+        # end_year = int(end_date_parameter[6:10])
+        
+        # start_dt = date(start_year, start_month, start_day)
+        # end_dt = date(end_year, end_month, end_day)
+        
+        # diff= (end_dt-start_dt).days+1
+        
+        start = datetime.datetime.strptime(new_dt_start, '%Y-%m-%d %H:%M:%S')
+        end = datetime.datetime.strptime(new_dt_start, '%Y-%m-%d %H:%M:%S')
+        step = datetime.timedelta(days=1)
+
+        # def daterange(date1, date2):
+        #     for n in range(int ((date2 - date1).days)+1):
+        #     yield date1 + timedelta(n)
+        
+        date_interval = {}
+        # for dt in range(diff):
+        #     date_interval.append(start_dt+datetime.timedelta(dt))
+        
+        while start <= end:
+            date_interval(start.date())
+            start += step
+
+        return json.dumps(date_interval),200
+
+
+        return start_date_parameter, 200
 
 
         return dictionary_date, 200

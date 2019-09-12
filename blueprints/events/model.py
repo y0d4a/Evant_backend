@@ -15,8 +15,8 @@ class Events(db.Model):
     place_location = db.Column(db.String(100), nullable = True)
     start_date = db.Column(db.String(100), nullable = True)
     end_date = db.Column(db.String(100), nullable = True)
-    start_date_parameter = db.Column(db.String(100), nullable = True)   
-    end_date_parameter = db.Column(db.String(100), nullable = True)
+    start_date_parameter = db.Column(db.DateTime, nullable = True)   
+    end_date_parameter = db.Column(db.DateTime, nullable = True)
     preference = db.Column(db.String(100), nullable = True)
     duration = db.Column(db.Integer, nullable = True)
 
