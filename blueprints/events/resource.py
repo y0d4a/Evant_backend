@@ -166,36 +166,38 @@ class EventsHistoryResource(Resource):
             if event_query.status == 1:
                 list_event.append(marshal(event_query, Events.response_fields))
         
-        return list_event, 200, {'Content-Type' : 'application/json'}
+#         return list_event, 200, {'Content-Type' : 'application/json'}
 
-class EventsAddDominancePreferenceResource(Resource):
+# class EventsAddDominancePreferenceResource(Resource):
 
-    """
-    class to edit/add preference which is the the dominant preference from all member
-    """
+#     """
+#     class to edit/add preference which is the the dominant preference from all member
+#     """
     
-    @jwt_required
-    def put(self, event_id):
-        """
-        method to get all ongoing events
-        """
-        creator = get_jwt_identity()
-        preferences = UserPreferences.query.filter_by(event_id = event_id)
+#     @jwt_required
+#     def put(self, event_id):
+#         """
+#         method to get all ongoing events
+#         """
+#         creator = get_jwt_identity()
+#         preferences = UserPreferences.query.filter_by(event_id = event_id)
 
-        '''
-        find the difference preference in preferences
-        '''
-        list_different_preferences = []
-        for value in preferences:
-            if value not in list_different_preferences:
-                list_different_preferences.append(value)
+#         '''
+#         find the difference preference in preferences
+#         '''
+#         list_different_preferences = []
+#         for value in preferences:
+#             if value not in list_different_preferences:
+#                 list_different_preferences.append(value)
         
-        dictionary_count_value = {}
-        for value in list_different_preferences:
-            dictionary_count_value[value] = preferences.count(value)
+#         dictionary_count_value = {}
+#         for value in list_different_preferences:
+#             dictionary_count_value[value] = preferences.count(value)
 
-        return dictionary_count_value, 200, {'Content-Type' : 'application/json'}
+#         return dictionary_count_value, 200, {'Content-Type' : 'application/json'}
 
 api.add_resource(EventsResource, '','/<event_id>')
 api.add_resource(EventsOngoingResource, '/ongoing')
 api.add_resource(EventsHistoryResource, '/history')
+# api.add_resource(EventsAddDominancePreferenceResource, '/dominant_preference')
+
