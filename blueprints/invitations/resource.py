@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask_restful import Api, Resource, reqparse, marshal
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .model import Invitations
+from blueprints.events.model import Events 
 from blueprints import db, app
 
 import json
@@ -43,14 +44,21 @@ class InvitationsResource(Resource):
         identity = get_jwt_identity()
         user_id = int(identity['user_id'])
 
-        parser.add_argument('event_id', location='json', required=True)
+        # parser.add_argument('event_id', location='json', required=True)
         parser.add_argument('invited_id', location='json', required=True)
-
         invitation_data = parser.parse_args()
-        
-        event_id = invitation_data['event_id']
+
+        ''' Take all event id by creator_id '''
+        events = Events.query.filter_by(creator_id = user_id)
+
+        ''' Take newest event_id '''
+        event = events[-1]
+        event = marshal(event, Events.response_fields)
+
+        event_id = event['event_id']
         invited_id = invitation_data['invited_id']
 
+        ''' Add to init model '''
         invitation = Invitations(event_id, invited_id, 0)
 
         db.session.add(invitation)

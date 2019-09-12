@@ -19,7 +19,7 @@ class Events(db.Model):
     end_date_parameter = db.Column(db.String(100), nullable = True)
     duration = db.Column(db.Integer, nullable = True)
 
-    response_field = {
+    response_fields = {
         'event_id' : fields.Integer,
         'creator_id': fields.Integer,
         'category' : fields.String,

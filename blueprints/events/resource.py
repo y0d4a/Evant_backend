@@ -40,7 +40,7 @@ class EventsResource(Resource):
         db.session.add(event)
         db.session.commit()
 
-        return marshal(event, Events.response_field), 200, {'Content-Type':'application/json'}
+        return marshal(event, Events.response_fields), 200, {'Content-Type':'application/json'}
 
 api.add_resource(EventsResource, '')
 
