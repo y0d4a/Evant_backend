@@ -133,5 +133,34 @@ class InvitationsRejectResource(Resource):
 
         return marshal(invitations_query, Invitations.response_fields), 200, {'Content-Type':'application/json'}
 
+class DeclineEventResource(Resource):
+    """
+    class for user decline event, when the event have been generated
+    """
+
+    @jwt_required
+    def delete(self, event_id):
+        """
+        when user decline for the event, then user invitation for that event will be deleted
+        """
+        user = get_jwt_identity()
+        user_id = user['user_id']
+
+        invitation_query = Invitations.query.filter_by(status = 1, invited_id = user_id)
+        
+        '''
+        find invitation of user in specific event_id, then delete it
+        '''
+        for invitation in invitation_query:
+            invitation_new = marshal(invitation, Invitations.response_fields)
+            if int(event_id) == invitation_new['event_id']:
+                db.session.delete(invitation)
+                db.session.commit()
+                return {'status': 'DELETED'}, 200
+
+        if invitation_query is None:
+            return {'status': 'NOT_FOUND'}, 404
+
 api.add_resource(InvitationsResource, '', '/accept/<event_id>')
-api.add_resource(InvitationsRejectResource, '', '/reject/<event_id>')
+api.add_resource(InvitationsRejectResource, '/reject/<event_id>')
+api.add_resource(DeclineEventResource, '/decline/<event_id>')
