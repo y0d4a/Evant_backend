@@ -259,6 +259,8 @@ class EventsDatesGenerateResource(Resource):
                 list_temporary_date.append(value_new['date'])
             dictionary_date[user_id] = list_temporary_date
 
+        # return dictionary_date, 200
+
         '''
         get event duration
         '''
@@ -285,8 +287,33 @@ class EventsDatesGenerateResource(Resource):
 
         for date in date_generated:
             date_interval.append(date.strftime("%d/%m/%Y"))
+        
+        '''
+        slicing the interval date into sub interval
+        ''' 
+        slicing_date = {}
+        for index in range(0, (len(date_interval)-duration)+1):
+            list_date_match_tem = []
+            list_date_interval = date_interval[index:(duration+index)]
+            slicing_date[str(index)] = list_date_interval
+        
+        '''
+        match the date of every passenger in interval range
+        '''
+        date_match = {}
+        for index, value in slicing_date.items():
+            dict_user_opinion = {}
+            for user_id in dictionary_date:
+                if(set(value).issubset(set(dictionary_date[user_id]))):
+                    dict_user_opinion[user_id] = "Bisa"
+                else:
+                    dict_user_opinion[user_id] = "Tidak Bisa"
+
+            date_match[index] = value
+            date_match["Interval "+index] = dict_user_opinion  
                 
-        return date_interval, 200
+        return date_match, 200
+
 
 class GetAllParticipantsEvent(Resource):
     """ Class to get all participant in Event """
