@@ -197,7 +197,7 @@ class EventsPreferenceResource(Resource):
             list_for_save_preferences.append(new_value['preference'])
 
         '''
-        find the difference preference in preferences
+        find the difference preference in preferences
         '''
         list_different_preferences = []
         for value in list_for_save_preferences:
@@ -225,8 +225,11 @@ class EventsDatesGenerateResource(Resource):
         creator = marshal(creator_query, Events.response_fields)
         creator_id = creator['creator_id']
 
-        # list_of_id = [creator_id]
         list_of_id = []
+        
+        '''
+        get all invited_id
+        '''
         invitation_query = Invitations.query.filter_by(event_id = event_id)
         for invitation in invitation_query:
             invitation_new = marshal(invitation, Invitations.response_fields)
@@ -238,56 +241,42 @@ class EventsDatesGenerateResource(Resource):
             list_temporary_date = []
             for value in date:
                 value_new = marshal(value, AvailableDates.response_fields)
-                list_temporary_date.append(int(value_new['date'][0:2]))
+                list_temporary_date.append(value_new['date'])
             dictionary_date[user_id] = list_temporary_date
 
+        '''
+        get event duration
+        '''
         event_query = Events.query.get(event_id)
         event = marshal(event_query, Events.response_fields)
         duration = event['duration']
 
+
+        '''
+        get event start/end_date_parameter
+        '''
         start_date_parameter = event['start_date_parameter']
-        new_dt_start = start_date_parameter[:19]
+        new_dt_start = start_date_parameter[:10]
         end_date_parameter = event['end_date_parameter']
-        new_dt_end = end_date_parameter[:19]
+        new_dt_end = end_date_parameter[:10]
+
+        '''
+        generate date interval
+        '''
+        date_interval = []
+        start = datetime.datetime.strptime(new_dt_start, "%Y-%m-%d")
+        end = datetime.datetime.strptime(new_dt_end, "%Y-%m-%d")
+        date_generated = [start + datetime.timedelta(days=dt) for dt in range(0, ((end-start).days)+1)]
+
+        for date in date_generated:
+            date_interval.append(date.strftime("%d/%m/%Y"))
                 
-        # start_day = int(start_date_parameter[0:2])
-        # start_month = int(start_date_parameter[3:5])
-        # start_year = int(start_date_parameter[6:10])
-
-        # end_day = int(end_date_parameter[0:2])
-        # end_month = int(end_date_parameter[3:5])
-        # end_year = int(end_date_parameter[6:10])
-        
-        # start_dt = date(start_year, start_month, start_day)
-        # end_dt = date(end_year, end_month, end_day)
-        
-        # diff= (end_dt-start_dt).days+1
-        
-        # start = datetime.datetime.strptime(new_dt_start, '%Y-%m-%d %H:%M:%S')
-        # end = datetime.datetime.strptime(new_dt_start, '%Y-%m-%d %H:%M:%S')
-        # step = datetime.timedelta(days=1)
-
-        # # def daterange(date1, date2):
-        # #     for n in range(int ((date2 - date1).days)+1):
-        # #     yield date1 + timedelta(n)
-        
-        # date_interval = {}
-        # # for dt in range(diff):
-        # #     date_interval.append(start_dt+datetime.timedelta(dt))
-        
-        # while start <= end:
-        #     date_interval(start.date())
-        #     start += step
-
-        # return json.dumps(date_interval),200
-
-
-        # return start_date_parameter, 200
-        return dictionary_date, 200
+        return date_interval, 200
 
 class GetAllParticipantsEvent(Resource):
     """ Class to get all participant in Event """
     
+    @jwt_required
     def get(self, event_id):
         """ 
         function to get participant in some event
@@ -329,8 +318,6 @@ class GetAllParticipantsEvent(Resource):
         list_of_participants.append(creator_identity)
 
         return list_of_participants, 200, {'Content-Type' : 'application/json'}
-
-
 
 
 api.add_resource(EventsResource, '','/<event_id>')
