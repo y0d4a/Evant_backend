@@ -140,6 +140,6 @@ class RecommendationPlaceToHike(Resource):
         return hiking_list, 200, {'Content-Type' : 'application/json'}
 
 
-api.add_resource(GetPlaceToEat,'/eat/<event_id>','/eat')
-api.add_resource(GetPlaceToVacation,'/vacation/<event_id>','/vacation')
-api.add_resource(GetPlaceToHike,'/hiking/<event_id>','/hiking')
+api.add_resource(RecommendationPlaceToEat,'/eat/<event_id>','/eat')
+api.add_resource(RecommendationPlaceToVacation,'/vacation/<event_id>','/vacation')
+api.add_resource(RecommendationPlaceToHike,'/hiking/<event_id>','/hiking')
