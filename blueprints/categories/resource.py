@@ -12,7 +12,6 @@ api = Api(bp_categories)
 class CategoryResource (Resource):
     """Class for add preference category and get all preference category"""
 
-    @jwt_required
     def post(self):
         """this function for add preference category"""
 

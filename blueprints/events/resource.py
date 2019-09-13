@@ -237,6 +237,7 @@ class EventsPreferenceResource(Resource):
             dictionary_count_value[value] = list_for_save_preferences.count(value)
         
         dominant_preference = max(dictionary_count_value.items(), key=operator.itemgetter(1))[0]
+        
 
         return {"dominant_preference" : dominant_preference, "dictionary_count_value": dictionary_count_value}, 200, {'Content-Type' : 'application/json'}
 
@@ -364,6 +365,12 @@ class EventsDatesGenerateResource(Resource):
         
         date_result = {'summary' : result,
                         'result' :{'date': date_match_interval,'attendance':attendance_match}}
+
+        event_query = Events.query.get(event_id)
+        event_query.start_date = date_match_interval[0]
+        event_query.end_date = date_match_interval[-1]
+
+        db.session.commit()
 
         return date_result, 200
 
