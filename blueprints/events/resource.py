@@ -9,6 +9,7 @@ from .model import Events
 from blueprints.invitations.model import Invitations
 from blueprints.available_dates.model import AvailableDates
 from blueprints.user_preferences.model import UserPreferences
+from blueprints.users.model import Users
 from blueprints import db, app
 
 import json
@@ -262,29 +263,74 @@ class EventsDatesGenerateResource(Resource):
         
         # diff= (end_dt-start_dt).days+1
         
-        start = datetime.datetime.strptime(new_dt_start, '%Y-%m-%d %H:%M:%S')
-        end = datetime.datetime.strptime(new_dt_start, '%Y-%m-%d %H:%M:%S')
-        step = datetime.timedelta(days=1)
+        # start = datetime.datetime.strptime(new_dt_start, '%Y-%m-%d %H:%M:%S')
+        # end = datetime.datetime.strptime(new_dt_start, '%Y-%m-%d %H:%M:%S')
+        # step = datetime.timedelta(days=1)
 
-        # def daterange(date1, date2):
-        #     for n in range(int ((date2 - date1).days)+1):
-        #     yield date1 + timedelta(n)
+        # # def daterange(date1, date2):
+        # #     for n in range(int ((date2 - date1).days)+1):
+        # #     yield date1 + timedelta(n)
         
-        date_interval = {}
-        # for dt in range(diff):
-        #     date_interval.append(start_dt+datetime.timedelta(dt))
+        # date_interval = {}
+        # # for dt in range(diff):
+        # #     date_interval.append(start_dt+datetime.timedelta(dt))
         
-        while start <= end:
-            date_interval(start.date())
-            start += step
+        # while start <= end:
+        #     date_interval(start.date())
+        #     start += step
 
-        return json.dumps(date_interval),200
-
-
-        return start_date_parameter, 200
+        # return json.dumps(date_interval),200
 
 
+        # return start_date_parameter, 200
         return dictionary_date, 200
+
+class GetAllParticipantsEvent(Resource):
+    """ Class to get all participant in Event """
+    
+    def get(self, event_id):
+        """ 
+        function to get participant in some event
+        """
+
+        '''
+        get participant_id as creator_id
+        '''
+        event_query = Events.query.get(event_id)
+        event = marshal(event_query, Events.response_fields)
+        creator_id = event['creator_id']
+        user_as_creator_query = Users.query.get(creator_id)
+        user_as_creator = marshal(user_as_creator_query, Users.response_fields)
+        creator_username = user_as_creator['username']
+        creator_fullname = user_as_creator['fullname']
+
+        creator_identity = {
+            'id_participant': creator_id,
+            'username': creator_username,
+            'fullname': creator_fullname
+        }
+
+        '''
+        get participant_id as invited
+        '''
+        list_of_participants = []
+        participants_query = Invitations.query.filter_by(event_id = event_id)
+        for participant in participants_query:
+            participant_new = marshal(participant, Invitations.response_fields)
+            participant_id = participant_new['invited_id']
+            user_as_participant_query = Users.query.get(participant_id)
+            user_as_participant = marshal(user_as_participant_query, Users.response_fields)
+            dictionary_participant = {}
+            dictionary_participant['id_participant'] = user_as_participant['user_id']
+            dictionary_participant['username'] = user_as_participant['username']
+            dictionary_participant['fullname'] = user_as_participant['fullname']
+            list_of_participants.append(dictionary_participant)
+        
+        list_of_participants.append(creator_identity)
+
+        return list_of_participants, 200, {'Content-Type' : 'application/json'}
+
+
 
 
 api.add_resource(EventsResource, '','/<event_id>')
@@ -292,5 +338,5 @@ api.add_resource(EventsOngoingResource, '/ongoing')
 api.add_resource(EventsHistoryResource, '/history')
 api.add_resource(EventsPreferenceResource, '/dominant_preference/<event_id>')
 api.add_resource(EventsDatesGenerateResource, '/generate_date/<event_id>')
-
+api.add_resource(GetAllParticipantsEvent, '/list_of_participant/<event_id>')
 
