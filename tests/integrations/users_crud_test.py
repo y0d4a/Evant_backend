@@ -1,5 +1,5 @@
 import json
-from tests import app, client, cache, create_token, reset_database
+from tests import app, client, cache, create_token, reset_database, create_token1
 
 class TestUsersCrud():
     """Test all request in users resource"""
@@ -16,8 +16,8 @@ class TestUsersCrud():
     
     def test_users_put(self, client):
         data = {
-            'username':'ranpa',
-            'email':'radenmaharjo@gmail.com',
+            'username':'nandom',
+            'email':'nandommaharjo@gmail.com',
             'password':'123456',
             'gender':False,
             'fullname':'Agatha Ranpa',
@@ -25,8 +25,7 @@ class TestUsersCrud():
             'phone':'0822222137'
         }
 
-        res = client.put('/api/users', data=json.dumps(data),
-                        headers={'Authorization':'Bearer ' + token},
+        res = client.put('/api/users/1', data=json.dumps(data),
                         content_type='application/json')
         
         if res.status_code != 200:
@@ -40,6 +39,7 @@ class TestUsersCrud():
             'email':'makan@gmail.com',
             'password':'123456',
             'gender':False,
+            ''
             'fullname':'Agatha',
             'address':'blitar-jombang',
             'phone':'0822222137'
@@ -49,12 +49,12 @@ class TestUsersCrud():
                         content_type='application/json')
         
         if res.status_code != 404:
-            raise ValueError('The res.status_code must be 404, please check your code')
+            raise ValueError('The res.status_code must be 401, please check your code')
 
     def test_users_login(self, client):
         data = {
-            'username':'ranpa',
-            'password':'123456',
+            'username':'ranum',
+            'password':'agh765vx765',
         }
 
         res = client.post('/api/users/login', data=json.dumps(data),
@@ -85,7 +85,7 @@ class TestUsersCrud():
             'gender':False,
             'fullname':'radina yeah',
             'address':'jombang',
-            'phone':'0822222137'
+            'phone':'08222221565637'
         }
 
         res = client.post('/api/users/register', data=json.dumps(data),
@@ -111,7 +111,7 @@ class TestUsersCrud():
             raise ValueError('The res.status_code must be 400, please check your code')
     
     def test_users_after_login(self, client):
-        token = create_token()
+        token = create_token1()
 
         res = client.get('/api/users/after_first_login', headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
@@ -120,7 +120,7 @@ class TestUsersCrud():
             raise ValueError('The res.status_code must be 200, please check your code')
     
     def test_users_after_login_invalid(self, client):
-        token = create_token()
+        token = create_token1()
 
         res = client.get('/api/users/after_first_login',
                         content_type='application/json')

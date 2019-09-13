@@ -1,4 +1,4 @@
-from tests import app, client, cache, create_token, reset_database
+from tests import app, client, cache, create_token, reset_database, create_token1
 import json
 
 class TestInvitationsCrud():
@@ -77,7 +77,7 @@ class TestInvitationsCrud():
             raise ValueError('The res.status_code must be 401, please check your code')
     
     def test_invitations_reject_valid(self, client):
-        token = create_token()
+        token = create_token1()
         res = client.put('/api/invitations/reject/2',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')

@@ -9,7 +9,7 @@ class TestCategoriesCrud():
     def test_categories_post_valid(self, client):
         token = create_token()
         data = {
-            "preference": "pedas",
+            "preference": "kuntuk",
             "category":"makan"
         }
         res = client.post('/api/category', data=json.dumps(data),
@@ -24,13 +24,13 @@ class TestCategoriesCrud():
         
         data = {
             "preference": "pedas",
-            "category":"makan"
+            "category":"ohyeah"
         }
-        res = client.post('/api/category', data=json.dumps(data),
+        res = client.post('/api/categorys', data=json.dumps(data),
                         content_type='application/json')
-        res_json = json.loads(res.data)
-        if res.status_code != 401:
-            raise ValueError('The res.status_code must be 401, please check your code')
+
+        if res.status_code != 404:
+            raise ValueError('The res.status_code must be 404, please check your code')
     
     def test_categories_get_valid(self, client):
         token = create_token()

@@ -23,11 +23,11 @@ def reset_database():
     db.drop_all()
     db.create_all()
 
-    user = Users("mahar", "maharraden765@gmail.com", "agh765vx765", True, "Raden Panji", "Jombang", "082283511672")
-    user2 = Users("ranum", "ranumraden765@gmail.com", "agh765vx765", True, "Raden Panji", "Jombang", "082283511673")
+    user = Users("mahar", "maharraden765@gmail.com", "agh765vx765", True, True, "Raden Panji", "Jombang", "082283511672")
+    user2 = Users("ranum", "ranumraden765@gmail.com", "agh765vx765", True, True, "Raden Panji", "Jombang", "082283511673")
     invitation1 = Invitations(1, 1, 0)
-    invitation2 = Invitations(2, 2, 1)
-    invitation2 = Invitations(2, 1, 1)
+    invitation2 = Invitations(2, 2, 0)
+    invitation3 = Invitations(2, 1, 1)
 
     date = AvailableDates(1, '27/09/2019')
     db.session.add(date)
