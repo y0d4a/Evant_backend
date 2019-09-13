@@ -11,8 +11,6 @@ from blueprints.user_preferences.model import UserPreferences
 from blueprints.users.model import Users
 from blueprints import db, app
 
-import json
-
 bp_events = Blueprint('events', __name__)
 api = Api(bp_events)
 
@@ -259,7 +257,6 @@ class EventsDatesGenerateResource(Resource):
                 list_temporary_date.append(value_new['date'])
             dictionary_date[user_id] = list_temporary_date
 
-        # return dictionary_date, 200
 
         '''
         get event duration
@@ -301,18 +298,58 @@ class EventsDatesGenerateResource(Resource):
         match the date of every passenger in interval range
         '''
         date_match = {}
+        list_date_match = []
+        list_date_most_match = []
+        list_attendace_match = []
+        list_attendance_most_match = []
+        
         for index, value in slicing_date.items():
             dict_user_opinion = {}
+            agreement_count = 0
+           
             for user_id in dictionary_date:
                 if(set(value).issubset(set(dictionary_date[user_id]))):
-                    dict_user_opinion[user_id] = "Bisa"
+                    user_query = Users.query.get(user_id)
+                    user = marshal(user_query, Users.response_fields)
+                    username = user['username']
+                    dict_user_opinion[username] = "Bisa"
+                    agreement_count += 1
                 else:
-                    dict_user_opinion[user_id] = "Tidak Bisa"
+                    user_query = Users.query.get(user_id)
+                    user = marshal(user_query, Users.response_fields)
+                    username = user['username']
+                    dict_user_opinion[username] = "Tidak Bisa"
+
+            if len(dictionary_date) == agreement_count:
+                date_match["result"+index] = "ALL OF YOU CAN ATTEND IN THIS DATES"   
+                list_date_match.append(value)
+                list_attendace_match.append(dict_user_opinion)
+            elif (len(dictionary_date)/2) > agreement_count:
+                date_match["result"+index] = "DATES NOT FOUND"        
+            else :
+                date_match["result"+index] = "MOST OF YOU AVAILABLE IN THIS DATES"       
+                list_date_most_match.append(value)
+                list_attendace_most_match.append(dict_user_opinion)
 
             date_match[index] = value
-            date_match["Interval "+index] = dict_user_opinion  
-                
-        return date_match, 200
+            date_match["Interval "+index] = dict_user_opinion 
+
+        if list_date_match is not None:
+            date_match_interval = list_date_match[0]
+            attendance_match = list_attendace_match[0]
+            result = "ALL OF YOU CAN ATTEND IN THIS DATES"
+        elif list_date_most_match is not None :
+            date_match_interval = list_date_most_match
+            attendance_match = list_attendance_most_match[0]
+            result = "MOST OF YOU AVAILABLE IN THIS DATES"  
+        else :
+            date_match_interval = []   
+            result = "DATES NOT FOUND"
+        
+        date_result = {'summary' : result,
+                        'result' :{'date': date_match_interval,'attendance':attendance_match}}
+
+        return date_result, 200
 
 
 class GetAllParticipantsEvent(Resource):
