@@ -1,5 +1,4 @@
 from flask import Blueprint
-# from datetime import timedelta, date
 import json
 import datetime
 import operator
@@ -119,6 +118,21 @@ class EventsResource(Resource):
         
         return marshal(event_query, Events.response_fields), 200, {'Content-Type' : 'application/json'}
 
+    @jwt_required
+    def delete(self, event_id):
+
+        """
+        method to delete event based on event_id
+        """
+        event_query = Events.query.get(event_id)
+
+        if event_query is None:
+            return {'status':'event not found'}, 404
+        
+        db.session.delete(event_query)
+        db.session.commit()
+
+        return {'status':'delete success'}, 200
 
 class EventsOngoingResource(Resource):
 
@@ -217,6 +231,7 @@ class EventsDatesGenerateResource(Resource):
     """
     class to generate date    """
 
+    @jwt_required
     def get(self, event_id):
         '''
         get creator_id by event id
@@ -319,6 +334,35 @@ class GetAllParticipantsEvent(Resource):
 
         return list_of_participants, 200, {'Content-Type' : 'application/json'}
 
+class AllUserPreference(Resource):
+    """
+    class for getting all preference from participant
+    """
+
+    def get(self, event_id):
+        """
+        function to get all user preference in certain event
+        """
+
+        user_preferences_query = UserPreferences.query.filter_by(event_id=event_id)
+
+        '''
+        get every user_id, preference, and username in certain event
+        '''
+        list_of_user_preference = []
+        for user_preference in user_preferences_query:
+            dictionary_for_save_preference = {}
+            user_preferences_new = marshal(user_preference, UserPreferences.response_fields)
+            dictionary_for_save_preference['user_id'] = user_preferences_new['user_id']
+            user_query = Users.query.get(user_preferences_new['user_id'])
+            user = marshal(user_query, Users.response_fields)
+            dictionary_for_save_preference['username'] = user['username']
+            dictionary_for_save_preference['event_id'] = event_id
+            dictionary_for_save_preference['preference'] = user_preferences_new['preference']
+            list_of_user_preference.append(dictionary_for_save_preference)
+        
+        return list_of_user_preference, 200, {'Content-Type' : 'application/json'}
+
 
 api.add_resource(EventsResource, '','/<event_id>')
 api.add_resource(EventsOngoingResource, '/ongoing')
@@ -326,4 +370,4 @@ api.add_resource(EventsHistoryResource, '/history')
 api.add_resource(EventsPreferenceResource, '/dominant_preference/<event_id>')
 api.add_resource(EventsDatesGenerateResource, '/generate_date/<event_id>')
 api.add_resource(GetAllParticipantsEvent, '/list_of_participant/<event_id>')
-
+api.add_resource(AllUserPreference, '/all_user_preference/<event_id>')
