@@ -12,8 +12,8 @@ class TestEventCrud():
         data = {
 	        "category": "LIBURAN",
 	        "event_name" : "Pingin Liburan ke Bali",
-	        "start_date_parameter": "2019-09-26",
-	        "end_date_parameter": "2019-10-03",
+	        "start_date_parameter": "2019/09/26",
+	        "end_date_parameter": "2019/10/03",
 	        "duration":3
         }
 
@@ -23,15 +23,14 @@ class TestEventCrud():
             raise ValueError('The res.status_code must be 200, please check your code')
     
     def test_event_invalid_postevent(self,client):
-        token = create_token()
         data = {
 	        "event_name" : "Pingin Liburan ke Bali"
         }
 
-        res = client.post('/api/events', data=json.dumps(data), headers={'Authorization':'Bearer ' + token}, content_type='application/json')
+        res = client.post('/api/events', data=json.dumps(data), content_type='application/json')
 
-        if res.status_code != 400:
-            raise ValueError('The res.status_code must be 400, please check your code')
+        if res.status_code != 401:
+            raise ValueError('The res.status_code must be 401 please check your code')
 
     def test_events_get(self, client):
         token = create_token()
@@ -53,8 +52,8 @@ class TestEventCrud():
     def test_event_put(self, client):
         token = create_token()
         data = {
-	        "start_date_parameter": "2019-09-26",
-	        "end_date_parameter": "2019-10-03",
+	        "start_date_parameter": "2019/09/26",
+	        "end_date_parameter": "2019/10/03",
 	        "duration":2
         }
         res = client.put('/api/events/2', data=json.dumps(data), headers={'Authorization':'Bearer ' + token}, content_type='application/json')
@@ -65,8 +64,8 @@ class TestEventCrud():
     def test_event_put_invalid(self, client):
         token = create_token()
         data = {
-	        "start_date_parameter": "2019-09-26",
-	        "end_date_parameter": "2019-10-03",
+	        "start_date_parameter": "2019/09/26",
+	        "end_date_parameter": "2019/10/03",
 	        "duration":2
         }
         res = client.put('/api/events/2', data=json.dumps(data), content_type='application/json')

@@ -36,8 +36,7 @@ class UserRequest(Resource):
         
         return list_temporary, 200, {'Content-Type' : 'application/json'}
 
-    @jwt_required
-    def put(self):
+    def put(self, id):
         """ User request for editing his/her biodata """
 
         parser = reqparse.RequestParser()
@@ -45,16 +44,13 @@ class UserRequest(Resource):
         parser.add_argument('email', location='json', required=False)
         parser.add_argument('password', location = 'json', required=False)
         parser.add_argument('gender', location = 'json', required=False, type = inputs.boolean)
+        parser.add_argument('status_first_login', location = 'json', required=False, type = inputs.boolean)
         parser.add_argument('fullname', location = 'json', required=False)
         parser.add_argument('address', location = 'json', required=False)
         parser.add_argument('phone', location = 'json', required=False)
         args = parser.parse_args()
 
-        '''
-        get user id by get_jwt_identity()
-        '''
-        user = get_jwt_identity()
-        user_qry = Users.query.get(user['user_id'])
+        user_qry = Users.query.get(id)
 
         if user_qry is None:
             return {'status' : 'NOT_FOUND'}, 404
@@ -71,8 +67,10 @@ class UserRequest(Resource):
             user_qry.fullname = args['fullname']
         if args['address'] is not None:
             user_qry.address = args['address']
+        if args['status_first_login'] is not None:
+            user_qry.status_first_login = args['status_first_login']
         if args['phone'] is not None:
-            user_qry.address = args['phone']
+            user_qry.phone = args['phone']
 
         db.session.commit()
 

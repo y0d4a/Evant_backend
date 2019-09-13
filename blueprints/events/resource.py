@@ -40,8 +40,8 @@ class EventsResource(Resource):
         creator_id = int(identity['user_id'])
         category = event_data['category']
         event_name = event_data['event_name']
-        start_date_parameter = event_data['start_date_parameter'].encode('utf-8').strip()
-        end_date_parameter = event_data['end_date_parameter'].encode('utf-8').strip()
+        start_date_parameter = event_data['start_date_parameter']
+        end_date_parameter = event_data['end_date_parameter']
         duration = event_data['duration']
         status = 0
 

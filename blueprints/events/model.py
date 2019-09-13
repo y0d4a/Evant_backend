@@ -8,7 +8,7 @@ class Events(db.Model):
     __tablename__ = "events"
     event_id = db.Column(db.Integer, primary_key = True)
     creator_id = db.Column(db.Integer, nullable = False)
-    category = db.Column(db.String(100), nullable = False)
+    category = db.Column(db.String(100), nullable = True)
     event_name = db.Column(db.String(100), nullable = False)
     start_date_parameter = db.Column(db.String(100), nullable = True)
     end_date_parameter = db.Column(db.String(100), nullable = True)
