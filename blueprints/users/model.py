@@ -11,6 +11,7 @@ class Users(db.Model):
     email = db.Column(db.String(100), nullable = False, unique = True)
     password = db.Column(db.String(100), nullable = False)
     gender = db.Column(db.Boolean, nullable = False)
+    status_first_login = db.Column(db.Boolean, nullable = False)
     fullname = db.Column(db.String(100), nullable = True)
     address = db.Column(db.String(100), nullable = True)
     phone = db.Column(db.String(30), nullable = True, unique = True)
@@ -18,29 +19,32 @@ class Users(db.Model):
     response_fields = {
         'user_id' : fields.Integer,
         'username' : fields.String,
-        'fullname' : fields.String,
-        'address' : fields.String,
         'email' : fields.String,
         'password' : fields.String,
-        'phone' : fields.String,
         'gender' : fields.Boolean,
+        'status_first_login' : fields.Boolean,
+        'fullname' : fields.String,
+        'address' : fields.String,
+        'phone' : fields.String,      
     }
 
     jwt_response_fields = {
         'user_id' : fields.Integer,
         'username' : fields.String,
+        'email' : fields.String,
+        'gender' : fields.Boolean,
+        'status_first_login' : fields.Boolean,
         'fullname' : fields.String,
         'address' : fields.String,
-        'email' : fields.String,
         'phone' : fields.String,
-        'gender' : fields.Boolean,
     }
 
-    def __init__(self, username, email, password, gender, fullname = None, address = None, phone = None):
+    def __init__(self, username, email, password, gender, status_first_login, fullname = None, address = None, phone = None):
         self.username = username
         self.email = email
         self.password = password
         self.gender = gender
+        self.status_first_login = status_first_login
         self.fullname = fullname
         self.address = address
         self.phone = phone

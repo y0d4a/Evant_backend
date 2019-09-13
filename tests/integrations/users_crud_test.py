@@ -25,7 +25,8 @@ class TestUsersCrud():
             'phone':'0822222137'
         }
 
-        res = client.put('/api/users/1', data=json.dumps(data),
+        res = client.put('/api/users', data=json.dumps(data),
+                        headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
         
         if res.status_code != 200:
@@ -108,3 +109,21 @@ class TestUsersCrud():
         
         if res.status_code != 400:
             raise ValueError('The res.status_code must be 400, please check your code')
+    
+    def test_users_after_login(self, client):
+        token = create_token()
+
+        res = client.get('/api/users/after_first_login', headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        
+        if res.status_code != 200:
+            raise ValueError('The res.status_code must be 200, please check your code')
+    
+    def test_users_after_login_invalid(self, client):
+        token = create_token()
+
+        res = client.get('/api/users/after_first_login',
+                        content_type='application/json')
+        
+        if res.status_code != 401:
+            raise ValueError('The res.status_code must be 401, please check your code')
