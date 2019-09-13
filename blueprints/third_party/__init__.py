@@ -23,7 +23,7 @@ class RecommendationPlaceToEat(Resource):
         latitude  = geo['location_suggestions'][0]['latitude']
         longitude  = geo['location_suggestions'][0]['longitude']
 
-        events = Events.query.filter_by(event_id = event_id)
+        event = Events.query.filter_by(event_id = event_id)
         preference = event['preference']
 
         zomato_request = requests.get(self.zmt_host + '/search', params={'lat': latitude, 'lon': longitude, 'category': category}, headers={'user-key' : self.zmt_apikey})
@@ -74,8 +74,8 @@ class RecommendationPlaceToVacation(Resource):
         longitude_min = longitude-2
         longitude_max = longitude+2
 
-        events = Events.query.filter_by(event_id = event_id)
-        preference = event['preference']
+        # event = Events.query.filter_by(event_id = event_id)
+        # preference = event['preference']
         preference = 'religion'
         
         vacation_request = requests.get(self.holiday_host, params={'lon_min':longitude_min, 'lon_max': longitude_max, 'lat_min': latitude_min, 'lat_max':latitude_max, 'kinds':preference}, headers={'x-rapidapi-key' : self.holiday_key})
@@ -114,7 +114,7 @@ class RecommendationPlaceToHike(Resource):
         parser.add_argument('q',location='args', default=None)        
         args = parser.parse_args()
 
-        events = Events.query.filter_by(event_id = event_id)
+        event = Events.query.filter_by(event_id = event_id)
         preference = event['preference']
 
 
