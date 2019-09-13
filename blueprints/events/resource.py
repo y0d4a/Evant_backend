@@ -148,14 +148,24 @@ class EventsOngoingResource(Resource):
         user_id = identity['user_id']
 
         invitation_query = Invitations.query.filter_by(invited_id=user_id, status=1).all()
+        events_as_creator = Events.query.filter_by(creator_id=user_id, status=0).all()
 
         list_event = []
+
+        for event in events_as_creator:
+            temp = marshal(event, Events.response_fields)
+            creator_name = Users.query.get(event.creator_id).username
+            temp['creator_name'] = creator_name
+            list_event.append(temp)
 
         for invitaion in invitation_query:
             event_id = invitaion.event_id
             event_query = Events.query.get(event_id)
             if event_query.status == 0:
-                list_event.append(marshal(event_query, Events.response_fields))
+                temp = marshal(event_query, Events.response_fields)
+                creator_name = Users.query.get(event_query.creator_id).username
+                temp['creator_name'] = creator_name
+                list_event.append(temp)
         
         return list_event, 200, {'Content-Type' : 'application/json'}
 
