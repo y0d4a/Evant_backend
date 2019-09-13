@@ -36,8 +36,8 @@ class UserRequest(Resource):
         
         return list_temporary, 200, {'Content-Type' : 'application/json'}
 
-    
-    def put(self, id):
+    @jwt_required
+    def put(self):
         """ User request for editing his/her biodata """
 
         parser = reqparse.RequestParser()
@@ -50,7 +50,12 @@ class UserRequest(Resource):
         parser.add_argument('phone', location = 'json', required=False)
         args = parser.parse_args()
 
-        user_qry = Users.query.get(id)
+        '''
+        get user id by get_jwt_identity()
+        '''
+        user = get_jwt_identity()
+        user_qry = Users.query.get(user['user_id'])
+
         if user_qry is None:
             return {'status' : 'NOT_FOUND'}, 404
 
@@ -126,9 +131,10 @@ class UserMakeRegistration(Resource):
         pattern = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
         result = re.match(pattern, args['email'])
         
+        status_first_login = True
         if result:
 
-            user = Users(args['username'], args['email'], args['password'], args['gender'], args['fullname'], args['address'], args['phone'])
+            user = Users(args['username'], args['email'], args['password'], args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
             db.session.add(user)
             db.session.commit()
 
@@ -138,7 +144,29 @@ class UserMakeRegistration(Resource):
         else:
             return "Your Input Email Has Been Wrong", 400
 
+class AfterUserFirstLogin(Resource):
+    '''
+    class for change the user first login status
+    '''
+
+    @jwt_required
+    def get(self):
+        '''
+        function to change user first login status
+        '''
+        user = get_jwt_identity()
+        user_query = Users.query.get(user['user_id'])
+
+        user_query.status_first_login = False
+
+        db.session.commit()
+
+        return marshal(user_query, Users.response_fields), 200, {'Content-Type' : 'application/json'}
+
+
+
 api.add_resource(UserRequest, '', '/<id>')
 api.add_resource(UserLogin, '/login')
 api.add_resource(UserRefreshToken, '/refresh')
 api.add_resource(UserMakeRegistration, '/register')
+api.add_resource(AfterUserFirstLogin, '/after_first_login')

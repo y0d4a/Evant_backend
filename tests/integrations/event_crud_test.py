@@ -10,8 +10,11 @@ class TestEventCrud():
     def test_event_postevent(self,client):
         token = create_token()
         data = {
-            "category": "LIBURAN",
-	        "event_name" : "Pingin Liburan ke Bali"
+	        "category": "LIBURAN",
+	        "event_name" : "Pingin Liburan ke Bali",
+	        "start_date_parameter": "2019-09-26",
+	        "end_date_parameter": "2019-10-03",
+	        "duration":3
         }
 
         res = client.post('/api/events', data=json.dumps(data), headers={'Authorization':'Bearer ' + token}, content_type='application/json')

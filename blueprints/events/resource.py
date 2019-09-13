@@ -29,17 +29,23 @@ class EventsResource(Resource):
         parser = reqparse.RequestParser()
         identity = get_jwt_identity()
        
-        parser.add_argument('category', location='json', required=True)
-        parser.add_argument('event_name', location='json', required=True)
+        parser.add_argument('category', location='json', required=False)
+        parser.add_argument('event_name', location='json', required=False)
+        parser.add_argument('start_date_parameter', location='json', required=False, help="Mohon untuk mengisi kapan event akan dimulai")
+        parser.add_argument('end_date_parameter', location='json', required=False, help="Mohon untuk mengisi kapan event akan berakhir")
+        parser.add_argument('duration', location='json', required=False, help="mohon untuk mengisi berapa lama event akan diadakan")
 
         event_data = parser.parse_args()
 
         creator_id = int(identity['user_id'])
         category = event_data['category']
         event_name = event_data['event_name']
+        start_date_parameter = event_data['start_date_parameter'].encode('utf-8').strip()
+        end_date_parameter = event_data['end_date_parameter'].encode('utf-8').strip()
+        duration = event_data['duration']
         status = 0
 
-        event = Events(creator_id, category, event_name, status)
+        event = Events(creator_id, category, event_name, start_date_parameter, end_date_parameter, duration, status)
         print(type(event))
 
         db.session.add(event)
@@ -288,8 +294,8 @@ class EventsDatesGenerateResource(Resource):
         generate date interval
         '''
         date_interval = []
-        start = datetime.datetime.strptime(new_dt_start, "%Y-%m-%d")
-        end = datetime.datetime.strptime(new_dt_end, "%Y-%m-%d")
+        start = datetime.datetime.strptime(new_dt_start, "%Y/%m/%d")
+        end = datetime.datetime.strptime(new_dt_end, "%Y/%m/%d")
         date_generated = [start + datetime.timedelta(days=dt) for dt in range(0, ((end-start).days)+1)]
 
         for date in date_generated:
@@ -339,7 +345,7 @@ class EventsDatesGenerateResource(Resource):
             else :
                 date_match["result"+index] = "MOST OF YOU AVAILABLE IN THIS DATES"       
                 list_date_most_match.append(value)
-                list_attendace_most_match.append(dict_user_opinion)
+                list_attendance_most_match.append(dict_user_opinion)
 
             date_match[index] = value
             date_match["Interval "+index] = dict_user_opinion 
