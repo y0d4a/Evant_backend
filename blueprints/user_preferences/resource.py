@@ -19,8 +19,6 @@ class UserPreferencesResources (Resource) :
         identity = get_jwt_identity()
         user_id = identity['user_id']
 
-       
-
         parser = reqparse.RequestParser()
         parser.add_argument('event_id', location='json', required=True)
         parser.add_argument('preference', location='json', required=True)

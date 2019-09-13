@@ -26,7 +26,6 @@ class InvitationsResource(Resource):
         identity = get_jwt_identity()
         user_id = int(identity['user_id'])
 
-
         invitations_query = Invitations.query.filter_by(invited_id=user_id, status=0).all()
 
         if invitations_query is None:
