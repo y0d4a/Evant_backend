@@ -63,7 +63,7 @@ class DateResource (Resource):
         dates = []
         
         for date in dates_query.all():
-            dates.append(marshal(date, AvailableDates.response_fields))
+            dates.append(date.date)
 
         app.logger.debug('DEBUG : %s', dates_query)
         
