@@ -1,5 +1,6 @@
 import json
 import re
+from passlib.hash import sha256_crypt
 from flask import Blueprint
 from flask_restful import Resource, Api, reqparse, marshal, inputs
 from sqlalchemy import desc
@@ -7,7 +8,7 @@ from .model import Users
 
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity, get_jwt_claims
 
-from blueprints import db, app, bcrypt
+from blueprints import db, app
 
 bp_user = Blueprint('users', __name__)
 api = Api(bp_user)
@@ -87,17 +88,29 @@ class UserLogin(Resource):
         parser.add_argument('username', location='json', required=True, help = "Your input username is invalid")
         parser.add_argument('password', location='json', required=True, help = "Your input password is invalid")
         args = parser.parse_args()
+        
+        user_query = Users.query.filter_by(username=args['username']).first()
+        user = marshal(user_query, Users.response_fields)
 
-
-        user_query = Users.query.filter_by(username=args['username']).filter_by(password=args['password']).first()
-        user = marshal(user_query, Users.jwt_response_fields)
+        '''
+        verify user login password
+        '''
+        verify_password = sha256_crypt.verify(args['password'], user['password'])
 
         if user_query is not None:
-            token = create_access_token(identity=user)
-        else:
-            return {'status': 'UNAUTHORIZED', 'message': 'invalid key or secret'}, 401
+            if verify_password:
+                '''
+                get token for login
+                '''
+                identity_jwt = Users.query.filter_by(username=args['username']).first()
+                user_identity = marshal(identity_jwt, Users.jwt_response_fields)
+                token = create_access_token(identity=user_identity)
 
-        return {'token': token, "user":user}, 200, {'Content-Type' : 'application/json'}
+                return {'token': token, "user":user_identity}, 200, {'Content-Type' : 'application/json'}
+        else:
+            return {'status': 'FAILED USERNAME', 'message': 'please cek the correctness of your password'}, 401
+        
+        return {'status': 'INVALID PASSWORD', 'message': 'please cek the correctness of your password'}, 401
 
 
 class UserRefreshToken(Resource):
@@ -117,14 +130,17 @@ class UserMakeRegistration(Resource):
     def post(self):
         """ User make his/her account """
         parser = reqparse.RequestParser()
-        parser.add_argument('username', location='json', required=True)
+        parser.add_argument('username', location='json', required=True, help="please add your username")
         parser.add_argument('email', location='json', required=True)
-        parser.add_argument('password', location='json', required=True)
+        parser.add_argument('password', location='json', required=True, help = "You did not fill your password")
         parser.add_argument('gender', location='json', required=True, type = inputs.boolean)
         parser.add_argument('fullname', location='json', required=False)
         parser.add_argument('address', location='json', required=False)
         parser.add_argument('phone', location='json', required=False)
         args = parser.parse_args()
+
+        password = sha256_crypt.encrypt(args['password'])
+        print("ini password", password)
 
         pattern = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
         result = re.match(pattern, args['email'])
@@ -132,7 +148,7 @@ class UserMakeRegistration(Resource):
         status_first_login = True
         if result:
 
-            user = Users(args['username'], args['email'], args['password'], args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
+            user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
             db.session.add(user)
             db.session.commit()
 

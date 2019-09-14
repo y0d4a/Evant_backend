@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_bcrypt import Bcrypt
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from flask_jwt_extended import JWTManager
@@ -10,7 +9,6 @@ import config, os
 
 app = Flask(__name__)
 app.config['APP_DEBUG'] = True
-bcrypt = Bcrypt(app)
 CORS(app)
 
 ######################

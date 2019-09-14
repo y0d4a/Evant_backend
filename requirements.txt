@@ -10,3 +10,4 @@ pytest
 flask-cors
 flask-bcrypt
 mock
+passlib
