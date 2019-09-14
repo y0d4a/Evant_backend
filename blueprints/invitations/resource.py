@@ -45,13 +45,23 @@ class InvitationsResource(Resource):
             creator = Users.query.get(from_event_table['creator_id'])
             creator = marshal(creator, Users.response_fields)
 
+            '''take event category, duration, start, and endDate'''
+            event_duration = from_event_table['duration']
+            event_start = from_event_table['start_date']
+            event_end = from_event_table['end_date']
+            event_category = from_event_table['category']
+
             response_fields_dummy = {
                 'event_id' : from_event_table['event_id'],
                 'event_name' : from_event_table['event_name'],
                 'invited_id' : event_new['invited_id'],
                 'creator_id' : creator['user_id'],
                 'username_creator' : creator['username'],
-                'status' : event_new['status']
+                'status' : event_new['status'],
+                'event_duration' : event_duration,
+                'event_start' : event_start,
+                'event_end' : event_end,
+                'event_category' : event_category
             }
             list_event_temporrary.append(response_fields_dummy)
     
