@@ -133,8 +133,8 @@ class RecommendationPlaceToVacation(Resource):
 
         location_request = requests.get(location_host, params={'q':destination, 'key':location_key})
         geo = location_request.json()   
-        latitude  = geo['results'][1]['bounds']['northeast']['lat']
-        longitude = geo['results'][1]['bounds']['northeast']['lng']
+        latitude  = geo['results'][1]['bounds']['southwest']['lat']
+        longitude = geo['results'][1]['bounds']['southwest']['lng']
 
         latitude = int(latitude)
         latitude_min = latitude-2
@@ -144,7 +144,7 @@ class RecommendationPlaceToVacation(Resource):
         longitude_min = longitude-2
         longitude_max = longitude+2
         
-        vacation_request = requests.get(self.holiday_host, params={'lon_min':longitude_min, 'lon_max': longitude_max, 'lat_min': latitude_min, 'lat_max':latitude_max, 'kinds':'cultural'}, headers={'x-rapidapi-key' : self.holiday_key})
+        vacation_request = requests.get(self.holiday_host, params={'lon_min':longitude_min, 'lon_max': longitude_max, 'lat_min': latitude_min, 'lat_max':latitude_max, 'kinds':dominant_preference}, headers={'x-rapidapi-key' : self.holiday_key})
         vacations = vacation_request.json()
 
         vacation_list = []

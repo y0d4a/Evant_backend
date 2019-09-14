@@ -25,6 +25,7 @@ def reset_database():
 
     user = Users("mahar", "maharraden765@gmail.com", "agh765vx765", True, True, "Raden Panji", "Jombang", "082283511672")
     user2 = Users("ranum", "ranumraden765@gmail.com", "agh765vx765", True, True, "Raden Panji", "Jombang", "082283511673")
+   
     invitation1 = Invitations(1, 1, 0)
     invitation2 = Invitations(2, 2, 0)
     invitation3 = Invitations(2, 1, 1)
@@ -40,10 +41,13 @@ def reset_database():
     date = AvailableDates(2, '29/09/2019')
     db.session.add(date)
 
-    user_preference = UserPreferences(1, 2, 'MAKAN')
+    user_preference = UserPreferences(1, 2, 'Dinner')
     db.session.add(user_preference)
-    user_preference = UserPreferences(2, 2, 'MAKAN')
+    user_preference = UserPreferences(2, 2, 'Dinner')
     db.session.add(user_preference)
+    user_preference = UserPreferences(2, 1, 'cultural')
+    db.session.add(user_preference)
+ 
 
     event1 = Events(1, "LIBURAN", "jalan-jalan ke mall", "2019-09-26", "2019-10-03", 3, 0)
     event2 = Events(2, "MAKAN", "pingin makan-makan", "2019-09-26", "2019-10-03", 3, 0)

@@ -13,7 +13,7 @@ class TestUserPreferencesCrud():
         token = create_token()
         data = {
             "event_id" : 1,
-            "preference": "hambar"
+            "preference": "cultural"
         }
         res = client.post('/api/users/preferences', data=json.dumps(data),
                         headers={'Authorization':'Bearer ' + token},

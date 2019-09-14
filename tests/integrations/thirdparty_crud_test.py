@@ -5,10 +5,46 @@ from mock import patch
 
 class TestThirdPartyCrud():
     """class to test third party api"""
+
+    reset_database()
+    def test_zomato_get_valid(self, client):
+        """class to test third party api zomato"""
+
+        token = create_token()
+        res = client.get('/api/recommendation/eat/2',
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        res_json = json.loads(res.data)
+        if res.status_code != 200:
+            raise ValueError('The res.status_code must be 200, please check your code')
+    
+
+    def test_vacation_get_valid(self, client):
+        """class to test third party api vacation"""
+
+        token = create_token()
+        res = client.get('/api/recommendation/vacation/1',
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        res_json = json.loads(res.data)
+        if res.status_code != 200:
+            raise ValueError('The res.status_code must be 200, please check your code')
+    
+    def test_hiking_get_valid(self, client):
+        """class to test third party api zomato"""
+
+        token = create_token()
+        res = client.get('/api/recommendation/hiking/1',
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        res_json = json.loads(res.data)
+        if res.status_code != 200:
+            raise ValueError('The res.status_code must be 200, please check your code')
+
+
     @patch.object(RecommendationPlaceToEat, 'get')
     def testGetZomatoMock(self, mock_get):
         """class to test third party api zomato with mock"""
-
         response =  {
         "restaurants": "WAKI Japanese BBQ Dining",
         "address": "Lantai 1, Jl. Tanjung Karang No. 5, Thamrin, Jakarta",
