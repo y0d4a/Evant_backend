@@ -21,7 +21,7 @@ class UserPreferencesResources (Resource) :
 
         parser = reqparse.RequestParser()
         parser.add_argument('event_id', location='json', required=True)
-        parser.add_argument('preference', location='json', required=True)
+        parser.add_argument('preference', location='json', default="null")
 
         args = parser.parse_args()
 
@@ -50,6 +50,8 @@ class UserPreferencesResources (Resource) :
         app.logger.debug('DEBUG : %s', user_preferences)
         
         return preferences, 200, {'Content-Type': 'application/json'}
+    
+
 
 
 api.add_resource(UserPreferencesResources, '', '/<event_id>')
