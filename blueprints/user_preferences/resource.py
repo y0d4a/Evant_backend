@@ -10,12 +10,17 @@ api = Api(bp_user_preferences)
 
 
 class UserPreferencesResources (Resource) :
-    """POST and GET every user preferences"""
+
+    """
+    class for POST and GET every user preferences
+    """
 
     @jwt_required
     def post(self):
-        """Input user preferences to certain event_id"""	
 
+        """
+        method to input user preferences to certain event
+        """	
         identity = get_jwt_identity()
         user_id = identity['user_id']
 
@@ -31,15 +36,15 @@ class UserPreferencesResources (Resource) :
 
         app.logger.debug('DEBUG : %s', user_preferences)
 
-        return marshal(user_preferences, UserPreferences.response_fields), 200, {
-            'Content-Type': 'application/json'
-        }
+        return marshal(user_preferences, UserPreferences.response_fields), 200, {'Content-Type': 'application/json'}
 
 
     @jwt_required
     def get(self,event_id):
-        """Get all user preferences from certain event_id"""			
 
+        """
+        method to get all user preferences from certain event
+        """			
         user_preferences = UserPreferences.query
         preferences_event = user_preferences.filter_by(event_id=event_id)
         preferences = []

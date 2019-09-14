@@ -15,11 +15,16 @@ api = Api(bp_user)
 
 
 class UserRequest(Resource):
-    """ Standart user action GET, PUT """
+
+    """ 
+    Class for standard user action GET, PUT 
+    """
 
     def get(self):
-        """ Request to Get All users """
 
+        """ 
+        method request to get all users
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('p', type = int, location = 'args', required = False, default = 1)
         parser.add_argument('rp', type = int, location = 'args', required = False, default = 25)
@@ -38,8 +43,10 @@ class UserRequest(Resource):
         return list_temporary, 200, {'Content-Type' : 'application/json'}
 
     def put(self, id):
-        """ User request for editing his/her biodata """
 
+        """ 
+        method to edit user profile 
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('username', location ='json', required=False)
         parser.add_argument('email', location='json', required=False)
@@ -79,11 +86,16 @@ class UserRequest(Resource):
     
 
 class UserLogin(Resource):
-    """ User login for getting authentication """
+
+    """
+    class for user login for getting authentication
+    """
 
     def post(self):
-        """ user ask token auth for login """
 
+        """
+        method to get token 
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('username', location='json', required=True, help = "Your input username is invalid")
         parser.add_argument('password', location='json', required=True, help = "Your input password is invalid")
@@ -114,21 +126,33 @@ class UserLogin(Resource):
 
 
 class UserRefreshToken(Resource):
-    """ User refresh token for auth """
+
+    """
+    class for refresh token for auth
+    """
 
     @jwt_required
     def post(self):
-        """ user ask renewable token """
+
+        """
+        method to refresh token
+        """
         current_user = get_jwt_identity()
         token = create_access_token(identity = current_user)
         return {'token': token}, 200, {'Content-Type' : 'application/json'}
 
 
 class UserMakeRegistration(Resource):
-    """ User create account (register) """
+
+    """
+    class for user to create account (register)
+    """
 
     def post(self):
-        """ User make his/her account """
+
+        """ 
+        method to make his/her account
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('username', location='json', required=True, help="please add your username")
         parser.add_argument('email', location='json', required=True, help = "You did not fill your password")
@@ -157,14 +181,19 @@ class UserMakeRegistration(Resource):
 
             return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}   
         else:
-            return "Your Input Email Has Been Wrong", 400
+            return "Your Email is Invalid", 400
 
 class UserForgotPassword(Resource):
-    """ User Want to make new password """
+
+    """
+    class for user to make new password
+    """
 
     def post(self):
-        """ user add their new password """
 
+        """
+        method to add new password
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('email', location='json', required=True, help = "Your input email is invalid")
         parser.add_argument('new_password', location='json', required=True, help = "Your input password is invalid")
@@ -177,7 +206,7 @@ class UserForgotPassword(Resource):
             user_query = Users.query.filter_by(email=args['email']).first()
         
             '''
-            add to db the new user password
+            add the new user password to database
             '''
             if user_query is not None:
                 password = sha256_crypt.encrypt(args['new_password'])
@@ -193,14 +222,16 @@ class UserForgotPassword(Resource):
             return "Your Input Email Has Been Wrong", 400
 
 class AfterUserFirstLogin(Resource):
-    '''
+
+    """"
     class for change the user first login status
-    '''
+    """"
 
     @jwt_required
     def get(self):
+
         '''
-        function to change user first login status
+        method to change user first login status
         '''
         user = get_jwt_identity()
         user_query = Users.query.get(user['user_id'])
@@ -212,12 +243,16 @@ class AfterUserFirstLogin(Resource):
         return marshal(user_query, Users.response_fields), 200, {'Content-Type' : 'application/json'}
 
 class UserLoginWithGoogle(Resource):
-    '''
-    user login with google
-    '''
-    def post(self):
-        """ user verify ask token auth for login """
 
+    '''
+    class for user to login with google
+    '''
+
+    def post(self):
+
+        """
+        method to verify token auth for login
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('email', location='json', required=True, help = "Your input username is invalid")
         parser.add_argument('token_google', location='json', required=True, help = "Your input password is invalid")
@@ -226,7 +261,6 @@ class UserLoginWithGoogle(Resource):
         '''
         create jwt_authentication with google token
         '''
-
         if args['email'] is not None:
             if args['token_google']:
                 '''
@@ -243,10 +277,16 @@ class UserLoginWithGoogle(Resource):
         return {'status': 'INVALID TOKEN', 'message': 'please cek the correctness of your request'}, 401
 
 class UserRegisterWithGoogle(Resource):
-    """ User create account (register) """
+
+    """
+    class for creating account (register)
+    """
 
     def post(self):
-        """ User make his/her account """
+
+        """
+        method for User to make account
+        """
         parser = reqparse.RequestParser()
         parser.add_argument('username', location='json', required=True, help="please add your username")
         parser.add_argument('email', location='json', required=True, help = "You did not fill your password")
@@ -274,7 +314,7 @@ class UserRegisterWithGoogle(Resource):
             app.logger.debug('DEBUG : %s', user)
 
         else:
-            return "Your Input Email Has Been Wrong", 400
+            return "Invalid Email", 400
 
         if args['email'] is not None:
             '''
@@ -286,7 +326,7 @@ class UserRegisterWithGoogle(Resource):
 
             return {'token': token, "user":user_identity}, 200, {'Content-Type' : 'application/json'}
         else:
-            return "Your Input Email Has Been Wrong", 400        
+            return "Invalid Email", 400        
 
 
 api.add_resource(UserRequest, '', '/<id>')
