@@ -136,25 +136,76 @@ class UserMakeRegistration(Resource):
         parser.add_argument('gender', location='json', required=True, type = inputs.boolean)
         parser.add_argument('fullname', location='json', required=False)
         parser.add_argument('address', location='json', required=False)
-        parser.add_argument('phone', location='json', required=False)
+        parser.add_argument('phone', location='json', required=True)
         args = parser.parse_args()
 
         password = sha256_crypt.encrypt(args['password'])
-        print("ini password", password)
 
+        '''
+        for phone number validation
+        '''
+
+        phone_number_pattern = '^(\d{12})(?:\s|$)'
+        result_phone_number = re.match(phone_number_pattern, args['phone'])
+        
+        phone_number_pattern1 = '^(\d{11})(?:\s|$)'
+        result_phone_number1 = re.match(phone_number_pattern1, args['phone'])
+        
+        phone_number_pattern2 = '^(\d{10})(?:\s|$)'
+        result_phone_number1 = re.match(phone_number_pattern2, args['phone'])
+
+        
+        '''
+        for email validation
+        '''
         pattern = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
         result = re.match(pattern, args['email'])
         
         status_first_login = True
         if result:
+            if result_phone_number or result_phone_number1 or result_phone_number:
+                user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
+                db.session.add(user)
+                db.session.commit()
 
-            user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
-            db.session.add(user)
-            db.session.commit()
+                app.logger.debug('DEBUG : %s', user)
 
-            app.logger.debug('DEBUG : %s', user)
+                return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}
+            else:
+                return "Your Input Phone Number Has Been Wrong", 400    
+        else:
+            return "Your Input Email Has Been Wrong", 400
 
-            return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}
+class UserForgotPassword(Resource):
+    """ User Want to make new password """
+
+    def post(self):
+        """ user add their new password """
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('email', location='json', required=True, help = "Your input email is invalid")
+        parser.add_argument('new_password', location='json', required=True, help = "Your input password is invalid")
+        args = parser.parse_args()
+        
+        pattern = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        result = re.match(pattern, args['email'])
+        
+        if result:
+            user_query = Users.query.filter_by(email=args['email']).first()
+        
+            '''
+            add to db the new user password
+            '''
+            if user_query is not None:
+                password = sha256_crypt.encrypt(args['new_password'])
+                user_query.password = password
+                db.session.commit()
+                return {'status': 'NEW PASSWORD HAS ADDED'}, 200
+            else:
+                return {'status': 'FAILED USERNAME', 'message': 'please cek the correctness of your password'}, 401
+        
+            return {'status': 'INVALID PASSWORD AND USERNAME', 'message': 'please cek the correctness of your password and username'}, 401
+        
         else:
             return "Your Input Email Has Been Wrong", 400
 
@@ -184,3 +235,5 @@ api.add_resource(UserLogin, '/login')
 api.add_resource(UserRefreshToken, '/refresh')
 api.add_resource(UserMakeRegistration, '/register')
 api.add_resource(AfterUserFirstLogin, '/after_first_login')
+api.add_resource(UserForgotPassword, '/add_new_password')
+
