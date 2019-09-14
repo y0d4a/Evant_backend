@@ -119,8 +119,16 @@ class EventsResource(Resource):
 
         if event_query is None:
             return {'status':'event not found'}, 404
+
+        result = marshal(event_query, Events.response_fields)
+
+        '''add new parameter to output'''
+        creator = Users.query.get(event_query.creator_id)
+        result['creator_username']= creator.username
+        result['creator_fullname']=creator.fullname
+
         
-        return marshal(event_query, Events.response_fields), 200, {'Content-Type' : 'application/json'}
+        return result, 200, {'Content-Type' : 'application/json'}
 
     @jwt_required
     def delete(self, event_id):
@@ -423,7 +431,7 @@ class GetAllParticipantsEvent(Resource):
             dictionary_participant['id_participant'] = user_as_participant['user_id']
             dictionary_participant['username'] = user_as_participant['username']
             dictionary_participant['fullname'] = user_as_participant['fullname']
-            dictionary_participant['status'] = 'guest'
+            dictionary_participant['status'] = 'participant'
             list_of_participants.append(dictionary_participant)
         
         list_of_participants.append(creator_identity)
