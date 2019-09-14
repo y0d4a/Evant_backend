@@ -185,11 +185,12 @@ class EventsHistoryResource(Resource):
     @jwt_required
     def get(self):
         """
-        method to get all ongoing events
+        method to get all history events
         """
         identity = get_jwt_identity()
         user_id = identity['user_id']
 
+        '''event as participant'''
         invitation_query = Invitations.query.filter_by(invited_id=user_id, status=1).all()
 
         list_event = []
@@ -199,7 +200,13 @@ class EventsHistoryResource(Resource):
             event_query = Events.query.get(event_id)
             if event_query.status == 1:
                 list_event.append(marshal(event_query, Events.response_fields))
-        
+
+        '''event as creator'''
+        as_creator_query = Events.query.filter_by(creator_id=user_id).all()
+        for event in as_creator_query:
+            if (event.status==1):
+                list_event.append(marshal(event, Events.response_fields))
+                
         return list_event, 200, {'Content-Type' : 'application/json'}
 
 class EventsPreferenceResource(Resource):
@@ -398,14 +405,15 @@ class GetAllParticipantsEvent(Resource):
         creator_identity = {
             'id_participant': creator_id,
             'username': creator_username,
-            'fullname': creator_fullname
+            'fullname': creator_fullname,
+            'status': 'creator'
         }
 
         '''
         get participant_id as invited
         '''
         list_of_participants = []
-        participants_query = Invitations.query.filter_by(event_id = event_id)
+        participants_query = Invitations.query.filter_by(event_id = event_id, status=1)
         for participant in participants_query:
             participant_new = marshal(participant, Invitations.response_fields)
             participant_id = participant_new['invited_id']
@@ -415,6 +423,7 @@ class GetAllParticipantsEvent(Resource):
             dictionary_participant['id_participant'] = user_as_participant['user_id']
             dictionary_participant['username'] = user_as_participant['username']
             dictionary_participant['fullname'] = user_as_participant['fullname']
+            dictionary_participant['status'] = 'guest'
             list_of_participants.append(dictionary_participant)
         
         list_of_participants.append(creator_identity)
