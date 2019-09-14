@@ -136,24 +136,43 @@ class UserMakeRegistration(Resource):
         parser.add_argument('gender', location='json', required=True, type = inputs.boolean)
         parser.add_argument('fullname', location='json', required=False)
         parser.add_argument('address', location='json', required=False)
-        parser.add_argument('phone', location='json', required=False)
+        parser.add_argument('phone', location='json', required=True)
         args = parser.parse_args()
 
         password = sha256_crypt.encrypt(args['password'])
 
+        '''
+        for phone number validation
+        '''
+
+        phone_number_pattern = '^(\d{12})(?:\s|$)'
+        result_phone_number = re.match(phone_number_pattern, args['phone'])
+        
+        phone_number_pattern1 = '^(\d{11})(?:\s|$)'
+        result_phone_number1 = re.match(phone_number_pattern1, args['phone'])
+        
+        phone_number_pattern2 = '^(\d{10})(?:\s|$)'
+        result_phone_number1 = re.match(phone_number_pattern2, args['phone'])
+
+        
+        '''
+        for email validation
+        '''
         pattern = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
         result = re.match(pattern, args['email'])
         
         status_first_login = True
         if result:
+            if result_phone_number or result_phone_number1 or result_phone_number:
+                user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
+                db.session.add(user)
+                db.session.commit()
 
-            user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
-            db.session.add(user)
-            db.session.commit()
+                app.logger.debug('DEBUG : %s', user)
 
-            app.logger.debug('DEBUG : %s', user)
-
-            return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}
+                return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}
+            else:
+                return "Your Input Phone Number Has Been Wrong", 400    
         else:
             return "Your Input Email Has Been Wrong", 400
 
