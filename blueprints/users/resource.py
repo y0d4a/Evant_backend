@@ -223,9 +223,9 @@ class UserForgotPassword(Resource):
 
 class AfterUserFirstLogin(Resource):
 
-    """"
+    """
     class for change the user first login status
-    """"
+    """
 
     @jwt_required
     def get(self):
