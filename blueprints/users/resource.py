@@ -131,30 +131,16 @@ class UserMakeRegistration(Resource):
         """ User make his/her account """
         parser = reqparse.RequestParser()
         parser.add_argument('username', location='json', required=True, help="please add your username")
-        parser.add_argument('email', location='json', required=True)
-        parser.add_argument('password', location='json', required=True, help = "You did not fill your password")
-        parser.add_argument('gender', location='json', required=True, type = inputs.boolean)
+        parser.add_argument('email', location='json', required=True, help = "You did not fill your password")
+        parser.add_argument('password', location='json', required=False)
+        parser.add_argument('gender', location='json', required=False, type = inputs.boolean)
         parser.add_argument('fullname', location='json', required=False)
         parser.add_argument('address', location='json', required=False)
-        parser.add_argument('phone', location='json', required=True)
+        parser.add_argument('phone', location='json', required=False)
         args = parser.parse_args()
 
         password = sha256_crypt.encrypt(args['password'])
 
-        '''
-        for phone number validation
-        '''
-
-        phone_number_pattern = '^(\d{12})(?:\s|$)'
-        result_phone_number = re.match(phone_number_pattern, args['phone'])
-        
-        phone_number_pattern1 = '^(\d{11})(?:\s|$)'
-        result_phone_number1 = re.match(phone_number_pattern1, args['phone'])
-        
-        phone_number_pattern2 = '^(\d{10})(?:\s|$)'
-        result_phone_number1 = re.match(phone_number_pattern2, args['phone'])
-
-        
         '''
         for email validation
         '''
@@ -163,16 +149,13 @@ class UserMakeRegistration(Resource):
         
         status_first_login = True
         if result:
-            if result_phone_number or result_phone_number1 or result_phone_number:
-                user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
-                db.session.add(user)
-                db.session.commit()
+            user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
+            db.session.add(user)
+            db.session.commit()
 
-                app.logger.debug('DEBUG : %s', user)
+            app.logger.debug('DEBUG : %s', user)
 
-                return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}
-            else:
-                return "Your Input Phone Number Has Been Wrong", 400    
+            return marshal(user, Users.response_fields), 200, {'Content-Type' : 'application/json'}   
         else:
             return "Your Input Email Has Been Wrong", 400
 
@@ -228,6 +211,82 @@ class AfterUserFirstLogin(Resource):
 
         return marshal(user_query, Users.response_fields), 200, {'Content-Type' : 'application/json'}
 
+class UserLoginWithGoogle(Resource):
+    '''
+    user login with google
+    '''
+    def post(self):
+        """ user verify ask token auth for login """
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('email', location='json', required=True, help = "Your input username is invalid")
+        parser.add_argument('token_google', location='json', required=True, help = "Your input password is invalid")
+        args = parser.parse_args()
+
+        '''
+        create jwt_authentication with google token
+        '''
+
+        if args['email'] is not None:
+            if args['token_google']:
+                '''
+                get token for login
+                '''
+                identity_jwt = Users.query.filter_by(email=args['email']).first()
+                user_identity = marshal(identity_jwt, Users.jwt_response_fields)
+                token = create_access_token(identity=user_identity)
+
+                return {'token': token, "user":user_identity}, 200, {'Content-Type' : 'application/json'}
+        else:
+            return {'status': 'FAILED EMAIL', 'message': 'please cek the correctness of your password'}, 401
+        
+        return {'status': 'INVALID TOKEN', 'message': 'please cek the correctness of your request'}, 401
+
+class UserRegisterWithGoogle(Resource):
+    """ User create account (register) """
+
+    def post(self):
+        """ User make his/her account """
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', location='json', required=True, help="please add your username")
+        parser.add_argument('email', location='json', required=True, help = "You did not fill your password")
+        parser.add_argument('password', location='json', required=False)
+        parser.add_argument('gender', location='json', required=False, type = inputs.boolean)
+        parser.add_argument('fullname', location='json', required=False)
+        parser.add_argument('address', location='json', required=False)
+        parser.add_argument('phone', location='json', required=False)
+        args = parser.parse_args()
+
+        password = sha256_crypt.encrypt(args['password'])
+
+        '''
+        for email validation
+        '''
+        pattern = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        result = re.match(pattern, args['email'])
+        
+        status_first_login = True
+        if result:
+            user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
+            db.session.add(user)
+            db.session.commit()
+
+            app.logger.debug('DEBUG : %s', user)
+
+        else:
+            return "Your Input Email Has Been Wrong", 400
+
+        if args['email'] is not None:
+            '''
+            get token for login
+            '''
+            identity_jwt = Users.query.filter_by(email=args['email']).first()
+            user_identity = marshal(identity_jwt, Users.jwt_response_fields)
+            token = create_access_token(identity=user_identity)
+
+            return {'token': token, "user":user_identity}, 200, {'Content-Type' : 'application/json'}
+        else:
+            return "Your Input Email Has Been Wrong", 400        
 
 
 api.add_resource(UserRequest, '', '/<id>')
@@ -235,5 +294,7 @@ api.add_resource(UserLogin, '/login')
 api.add_resource(UserRefreshToken, '/refresh')
 api.add_resource(UserMakeRegistration, '/register')
 api.add_resource(AfterUserFirstLogin, '/after_first_login')
+api.add_resource(UserLoginWithGoogle, '/google_login')
 api.add_resource(UserForgotPassword, '/add_new_password')
+api.add_resource(UserRegisterWithGoogle, '/register_with_google')
 
