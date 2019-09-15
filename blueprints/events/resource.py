@@ -559,6 +559,27 @@ class BookedDateResource(Resource):
 
         return {'booked_event':booked_dates, 'all_booked_dates':all_booked_dates}, 200, {'Content-Type' : 'application/json'}
 
+class CountMonthResource(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('start_date', location='json')
+        parser.add_argument('end_date', location='json')
+        args = parser.parse_args()
+
+        day_range = rangeBetweenDate(args['start_date'], args['end_date'])
+        month_list = []
+        year_list = []
+        for date in day_range:
+            month = date[3:5]
+            year = date[6:10]
+            if month_list == [] or month not in month_list:
+                month_list.append(month)
+            
+            if year_list == [] or year not in year_list:
+                year_list.append(year)
+
+        return {'month':month_list, 'year':year_list}
+
 api.add_resource(EventsResource, '','/<event_id>')
 api.add_resource(EventsOngoingResource, '/ongoing')
 api.add_resource(EventsHistoryResource, '/history')
@@ -567,3 +588,5 @@ api.add_resource(EventsDatesGenerateResource, '/generate_date/<event_id>')
 api.add_resource(GetAllParticipantsEvent, '/list_of_participant/<event_id>')
 api.add_resource(AllUserPreference, '/all_user_preference/<event_id>')
 api.add_resource(BookedDateResource, '/booked')
+api.add_resource(CountMonthResource, '/count')
+
