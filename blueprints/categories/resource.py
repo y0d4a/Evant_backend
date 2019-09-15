@@ -29,6 +29,7 @@ class CategoryResource (Resource):
 
         return marshal(category, Categories.response_fields), 200, {'Content-Type' : 'application/json'}
     
+    
     @jwt_required
     def get(self):
 

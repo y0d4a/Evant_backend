@@ -37,6 +37,30 @@ class UserPreferencesResources (Resource) :
         app.logger.debug('DEBUG : %s', user_preferences)
 
         return marshal(user_preferences, UserPreferences.response_fields), 200, {'Content-Type': 'application/json'}
+    
+    @jwt_required
+    def put(self,event_id):
+
+        """
+        method to edit user preferences to certain event
+        """	
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('preference', location='json')
+
+        args = parser.parse_args()
+
+        preference_query = UserPreferences.query.filter_by(event_id=event_id, user_id=user_id).first()
+
+        preference_query.preference = args['preference']
+        db.session.commit()
+
+        app.logger.debug('DEBUG : %s', preference_query)
+
+        return marshal(preference_query, UserPreferences.response_fields), 200, {'Content-Type': 'application/json'}
+
 
 
     @jwt_required
