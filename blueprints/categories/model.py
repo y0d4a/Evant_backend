@@ -10,7 +10,7 @@ class Categories (db.Model):
     category = db.Column(db.String(100), nullable= False)
 
     response_fields = {
-        'preferences'  : fields.String,
+        'preference'  : fields.String,
         'category'  : fields.String
     }
 
