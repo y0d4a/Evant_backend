@@ -14,6 +14,26 @@ from blueprints import db, app
 bp_events = Blueprint('events', __name__)
 api = Api(bp_events)
 
+def rangeBetweenDate(date1, date2):
+    if date1==None or date2==None:
+        return []
+    start = datetime.datetime.strptime(date1, '%d/%m/%Y')
+    end = datetime.datetime.strptime(date2, '%d/%m/%Y')
+    step = datetime.timedelta(days=1)
+    lst = []
+    while start <= end:
+        lst.append((slashFormat(start.date())))
+        start += step
+    return lst
+
+
+def slashFormat(tanggal):
+    date = str(tanggal)
+    day = date[8:10]
+    month = date[5:7]
+    year = date[0:4]
+    return '{dd}/{mm}/{yy}'.format(dd=day, mm=month, yy=year)
+
 class EventsResource(Resource):
 
     """
@@ -482,6 +502,62 @@ class AllUserPreference(Resource):
         
         return list_of_user_preference, 200, {'Content-Type' : 'application/json'}
 
+class BookedDateResource(Resource):
+    @jwt_required
+    def get(self):
+        '''method to get all book date'''
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
+
+        booked_dates = []
+        all_booked_dates = []
+
+        '''get event as creator'''
+        events_as_creator = Events.query.filter_by(creator_id=user_id).all()
+
+        '''input range date to booked_dates'''
+        for event in events_as_creator:
+            print(event.event_name)
+            start_date = event.start_date
+            end_date = event.end_date
+            dates = rangeBetweenDate(start_date,end_date)
+            if dates == []:
+                continue
+            
+            all_booked_dates+=dates
+
+            temp = {
+                'event_name':event.event_name,
+                'event_id':event.event_id,
+                'booked':dates,
+                'status':'creator'
+            }
+            booked_dates.append(temp)
+
+        '''get event as participant'''
+        my_invitations = Invitations.query.filter_by(invited_id=user_id, status=1).all()
+
+        '''input range date to booked_dates'''
+        for invitation in my_invitations:
+            my_event_id = invitation.event_id
+            my_event = Events.query.get(my_event_id)
+            start_date = my_event.start_date
+            end_date = my_event.end_date
+            dates = rangeBetweenDate(start_date,end_date)
+            if dates == []:
+                continue
+
+            all_booked_dates+=dates
+
+            temp = {
+                'event_name':my_event.event_name,
+                'event_id':my_event_id,
+                'booked':dates,
+                'status':'participant'
+            }
+            booked_dates.append(temp)
+
+        return {'booked_event':booked_dates, 'all_booked_dates':all_booked_dates}, 200, {'Content-Type' : 'application/json'}
 
 api.add_resource(EventsResource, '','/<event_id>')
 api.add_resource(EventsOngoingResource, '/ongoing')
@@ -490,3 +566,4 @@ api.add_resource(EventsPreferenceResource, '/dominant_preference/<event_id>')
 api.add_resource(EventsDatesGenerateResource, '/generate_date/<event_id>')
 api.add_resource(GetAllParticipantsEvent, '/list_of_participant/<event_id>')
 api.add_resource(AllUserPreference, '/all_user_preference/<event_id>')
+api.add_resource(BookedDateResource, '/booked')
