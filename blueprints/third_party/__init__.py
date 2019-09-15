@@ -71,8 +71,8 @@ class RecommendationPlaceToEat(Resource):
 
         for restaurant in range(0,3):
             response_dummy = {
-                'restaurants' : restaurants['restaurants'][restaurant]['restaurant']['name'],
-                'address' : restaurants['restaurants'][restaurant]['restaurant']['location']['address'],
+                'place' : restaurants['restaurants'][restaurant]['restaurant']['name'],
+                'place_location' : restaurants['restaurants'][restaurant]['restaurant']['location']['address'],
                 'photo' : restaurants['restaurants'][restaurant]['restaurant']['photos'][0]['photo']['thumb_url']
             }
             restaurant_list.append(response_dummy)
