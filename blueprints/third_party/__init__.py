@@ -78,6 +78,7 @@ class RecommendationPlaceToEat(Resource):
             restaurant_list.append(response_dummy)
         
         event_query = Events.query.get(event_id)
+        event_query.preference = dominant_preference
         event_query.place_name = restaurant_list[0]['restaurants']
         event_query.place_location = restaurant_list[0]['address']
         db.session.commit()
@@ -135,11 +136,8 @@ class RecommendationPlaceToVacation(Resource):
         '''
         location_host = 'https://api.opencagedata.com/geocode/v1/json'
         location_key = '27c217069e864fc4a6af09e706428fed'
-        
-        place = ['Jakarta', 'Bali', 'Medan', 'Surakarta', 'Balikpapan']
-        destination = random.choice(place)
 
-        location_request = requests.get(location_host, params={'q':destination, 'key':location_key})
+        location_request = requests.get(location_host, params={'q':dominant_preference, 'key':location_key})
         geo = location_request.json()   
         latitude  = geo['results'][1]['bounds']['southwest']['lat']
         longitude = geo['results'][1]['bounds']['southwest']['lng']
@@ -152,7 +150,7 @@ class RecommendationPlaceToVacation(Resource):
         longitude_min = longitude - 2
         longitude_max = longitude + 2
         
-        vacation_request = requests.get(self.holiday_host, params={'lon_min':longitude_min, 'lon_max': longitude_max, 'lat_min': latitude_min, 'lat_max':latitude_max, 'kinds':dominant_preference}, headers={'x-rapidapi-key' : self.holiday_key})
+        vacation_request = requests.get(self.holiday_host, params={'lon_min':longitude_min, 'lon_max': longitude_max, 'lat_min': latitude_min, 'lat_max':latitude_max}, headers={'x-rapidapi-key' : self.holiday_key})
 
         vacations = vacation_request.json()
 
@@ -164,15 +162,16 @@ class RecommendationPlaceToVacation(Resource):
             photo = photo_request.json()
             response_dummy = {
                 'place' : vacations['features'][vacation]['properties']['name'],
-                'place location' : destination,
-                'photo' : photo['image']
+                'place_location' : dominant_preference,
+                'photo' : photo['preview']['source']
             }
 
             vacation_list.append(response_dummy)
         
         event_query = Events.query.get(event_id)
+        event_query.preference = dominant_preference
         event_query.place_name = vacation_list[0]['place']
-        event_query.place_location = destination
+        event_query.place_location = dominant_preference
         db.session.commit()
 
         return vacation_list, 200, {'Content-Type' : 'application/json'}
@@ -242,13 +241,14 @@ class RecommendationPlaceToHike(Resource):
             
             response_dummy = {
                 'place' : hikings['trails'][hiking]['name'],
-                'place location' : dominant_preference,
+                'place_location' : dominant_preference,
                 'photo' : hikings['trails'][hiking]['imgMedium']
             }
 
             hiking_list.append(response_dummy)
 
         event_query = Events.query.get(event_id)
+        event_query.preference = dominant_preference
         event_query.place_name = hiking_list[0]['place']
         event_query.place_location = dominant_preference
         db.session.commit()
