@@ -79,8 +79,8 @@ class RecommendationPlaceToEat(Resource):
         
         event_query = Events.query.get(event_id)
         event_query.preference = dominant_preference
-        event_query.place_name = restaurant_list[0]['restaurants']
-        event_query.place_location = restaurant_list[0]['address']
+        # event_query.place_name = restaurant_list[0]['place']
+        # event_query.place_location = restaurant_list[0]['place_location']
         db.session.commit()
 
         return restaurant_list, 200, {'Content-Type' : 'application/json'}
@@ -170,8 +170,8 @@ class RecommendationPlaceToVacation(Resource):
         
         event_query = Events.query.get(event_id)
         event_query.preference = dominant_preference
-        event_query.place_name = vacation_list[0]['place']
-        event_query.place_location = dominant_preference
+        # event_query.place_name = vacation_list[0]['place']
+        # event_query.place_location = dominant_preference
         db.session.commit()
 
         return vacation_list, 200, {'Content-Type' : 'application/json'}
@@ -249,8 +249,8 @@ class RecommendationPlaceToHike(Resource):
 
         event_query = Events.query.get(event_id)
         event_query.preference = dominant_preference
-        event_query.place_name = hiking_list[0]['place']
-        event_query.place_location = dominant_preference
+        # event_query.place_name = hiking_list[0]['place']
+        # event_query.place_location = dominant_preference
         db.session.commit()
     
         return hiking_list, 200, {'Content-Type' : 'application/json'}
