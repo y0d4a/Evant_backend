@@ -322,8 +322,8 @@ class EventsDatesGenerateResource(Resource):
         generate date interval
         '''
         date_interval = []
-        start = datetime.datetime.strptime(new_dt_start, "%Y/%m/%d")
-        end = datetime.datetime.strptime(new_dt_end, "%Y/%m/%d")
+        start = datetime.datetime.strptime(new_dt_start, "%d/%m/%Y")
+        end = datetime.datetime.strptime(new_dt_end, "%d/%m/%Y")
         date_generated = [start + datetime.timedelta(days=dt) for dt in range(0, ((end-start).days)+1)]
 
         for date in date_generated:
@@ -378,12 +378,12 @@ class EventsDatesGenerateResource(Resource):
             date_match[index] = value
             date_match["Interval " + index] = dict_user_opinion 
 
-        if list_date_match is not None:
+        if len(list_date_match) != 0:
             date_match_interval = list_date_match[0]
             attendance_match = list_attendace_match[0]
             result = "ALL OF YOU CAN ATTEND IN THIS DATE"
-        elif list_date_most_match is not None :
-            date_match_interval = list_date_most_match
+        elif len(list_date_most_match) != 0:
+            date_match_interval = list_date_most_match[0]
             attendance_match = list_attendance_most_match[0]
             result = "MOST OF YOU AVAILABLE IN THIS DATE"  
         else :
@@ -399,7 +399,7 @@ class EventsDatesGenerateResource(Resource):
 
         db.session.commit()
 
-        return date_result, 200
+        return list_date_most_match, 200
 
 
 class GetAllParticipantsEvent(Resource):
