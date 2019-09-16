@@ -53,8 +53,8 @@ def reset_database():
     db.session.add(user_preference)
  
 
-    event1 = Events(1, "LIBURAN", "jalan-jalan ke mall", "2019-09-26", "2019-10-03", 3, 0)
-    event2 = Events(2, "MAKAN", "pingin makan-makan", "2019-09-26", "2019-10-03", 3, 0)
+    event1 = Events(1, "LIBURAN", "jalan-jalan ke mall", "27/09/2019", "30/09/2019", 3, 0)
+    event2 = Events(2, "MAKAN", "pingin makan-makan", "27/09/2019", "30/09/2019", 3, 0)
 
     # save users to database
     db.session.add(user)

@@ -182,4 +182,3 @@ class TestEventCrud():
 
         if res.status_code != 401:
             raise ValueError('The res.status_code must be 401, please check your code')    
-    
