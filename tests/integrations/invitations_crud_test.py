@@ -136,15 +136,15 @@ class TestInvitationsCrud():
             raise ValueError('The res.status_code must be 200, please check your code')    
 
 
-    # def test_invitations_user_invalid_decline_event(self, client):
-    #     """
-    #     test invalid reject without token
-    #     """
-    #     token = create_token2()
-    #     res = client.delete('/api/invitations/decline/3',
-    #             headers={'Authorization':'Bearer ' + token},
-    #             content_type='application/json')
+    def test_invitations_user_invalid_decline_event(self, client):
+        """
+        test invalid reject without token
+        """
+        token = create_token2()
+        res = client.delete('/api/invitations/decline/3',
+                headers={'Authorization':'Bearer ' + token},
+                content_type='application/json')
         
-    #     assert res.status_code == 404
-    #     if res.status_code != 404:
-    #         raise ValueError('The res.status_code must be 404, please check your code')    
+        assert res.status_code == 404
+        if res.status_code != 404:
+            raise ValueError('The res.status_code must be 404, please check your code')    

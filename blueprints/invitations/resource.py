@@ -163,12 +163,12 @@ class DeclineEventResource(Resource):
         user = get_jwt_identity()
         user_id = user['user_id']
 
-        invitation_query = Invitations.query.filter_by(status = 1, invited_id = user_id)
+        invitation_query = Invitations.query.filter_by(status = 1, invited_id = user_id).all()
         
         '''
         find invitation of user in specific event_id, then delete it
         '''
-        if invitation_query is None:
+        if invitation_query == []:
             return {'status': 'NOT_FOUND'}, 404
 
         for invitation in invitation_query:
