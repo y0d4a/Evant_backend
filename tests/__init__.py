@@ -29,10 +29,15 @@ def reset_database():
 
     user = Users("mahar", "maharraden765@gmail.com", password, True, True, "Raden Panji", "Jombang", "082283511672")
     user2 = Users("ranum", "ranumraden765@gmail.com", password, True, True, "Raden Panji", "Jombang", "082283511673")
-   
     invitation1 = Invitations(1, 1, 0)
-    invitation2 = Invitations(2, 2, 0)
+    invitation2 = Invitations(3, 2, 0)
     invitation3 = Invitations(2, 1, 1)
+    invitation4 = Invitations(1, 2, 0)
+    invitation5 = Invitations(2, 2, 1)
+    invitation6 = Invitations(4, 2, 0)
+    # invitation1 = Invitations(1, 1, 0)
+    # invitation2 = Invitations(3, 2, 0)
+    # invitation3 = Invitations(2, 1, 1)
 
     date = AvailableDates(1, '27/09/2019')
     db.session.add(date)
@@ -62,6 +67,10 @@ def reset_database():
     db.session.add(user2)
     db.session.add(invitation1)
     db.session.add(invitation2)
+    db.session.add(invitation3)
+    db.session.add(invitation4)
+    db.session.add(invitation5)
+    db.session.add(invitation6)
     db.session.add(event1)
     db.session.add(event2)
     db.session.commit()

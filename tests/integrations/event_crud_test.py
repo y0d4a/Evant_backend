@@ -1,5 +1,5 @@
 import json
-from tests import app, client, cache, create_token, reset_database
+from tests import app, client, cache, create_token, reset_database, create_token1
 
 class TestEventCrud():
     """Test all request in event resource"""
@@ -117,7 +117,14 @@ class TestEventCrud():
         res = client.get('/api/events/ongoing',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
-        res_json = json.loads(res.data)
+        if res.status_code != 200:
+            raise ValueError('The res.status_code must be 200, please check your code')
+        
+    def test_events_get_ongoingevent_as_participant(self, client):
+        token = create_token1()
+        res = client.get('/api/events/ongoing',
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
 
@@ -125,7 +132,6 @@ class TestEventCrud():
         token = create_token()
         res = client.get('/api/events/ongoing',
                         content_type='application/json')
-        res_json = json.loads(res.data)
         if res.status_code != 401:
             raise ValueError('The res.status_code must be 401, please check your code')
 
@@ -134,15 +140,22 @@ class TestEventCrud():
         res = client.get('/api/events/history',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
-        res_json = json.loads(res.data)
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
+    
+    def test_events_get_history_as_participant(self, client):
+        token = create_token1()
+        res = client.get('/api/events/history',
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        if res.status_code != 200:
+            raise ValueError('The res.status_code must be 200, please check your code')
+
 
     def test_events_get_history_invalid(self, client):
         token = create_token()
         res = client.get('/api/events/history',
                         content_type='application/json')
-        res_json = json.loads(res.data)
         if res.status_code != 401:
             raise ValueError('The res.status_code must be 401, please check your code')
     
@@ -151,7 +164,6 @@ class TestEventCrud():
         res = client.get('/api/events/dominant_preference/2',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
-        res_json = json.loads(res.data)
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
 
@@ -159,7 +171,6 @@ class TestEventCrud():
         token = create_token()
         res = client.get('/api/events/dominant_preference/2',
                         content_type='application/json')
-        res_json = json.loads(res.data)
         if res.status_code != 401:
             raise ValueError('The res.status_code must be 401, please check your code')
     
@@ -220,4 +231,28 @@ class TestEventCrud():
                         content_type='application/json')
 
         if res.status_code != 401:
-            raise ValueError('The res.status_code must be 401, please check your code')    
+            raise ValueError('The res.status_code must be 401, please check your code')
+    
+    def test_event_date_resource(self, client):
+        token = create_token()
+        res = client.get('/api/events/booked',
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        
+        if res.status_code != 200:
+            raise ValueError('The res.status_code must be 200, please check your code')
+    
+    def test_event_date_resource_count(self, client):
+        token = create_token()
+        data = {
+	        "start_date": "26/09/2019",
+	        "end_date": "03/10/2019",
+        }
+        res = client.post('/api/events/count',
+                        data=json.dumps(data),
+                        content_type='application/json')
+        
+        if res.status_code != 200:
+            raise ValueError('The res.status_code must be 200, please check your code')
+
+    
