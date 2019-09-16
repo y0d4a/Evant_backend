@@ -29,7 +29,7 @@ class InvitationsResource(Resource):
         invitations_query = Invitations.query.filter_by(invited_id=user_id, status=0).all()
 
         if invitations_query == []:
-            return {'status':'NOT_FOUND'}, 200
+            return [], 200
         
         list_event_temporrary = []
 
