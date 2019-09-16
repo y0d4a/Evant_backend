@@ -230,22 +230,36 @@ class EventsHistoryResource(Resource):
         events as participant
         '''
         invitation_query = Invitations.query.filter_by(invited_id=user_id, status=1).all()
+        
 
         list_event = []
 
         for invitaion in invitation_query:
             event_id = invitaion.event_id
             event_query = Events.query.get(event_id)
+            dict_temp = {}
             if event_query.status == 1:
-                list_event.append(marshal(event_query, Events.response_fields))
+                event_new = marshal(event_query, Events.response_fields)
+                as_creator_query = Users.query.get(event_new['creator_id'])
+                as_creator = marshal(as_creator_query, Users.response_fields)
+                dict_temp["event"] = event_new
+                dict_temp["creator_name"] = as_creator['username']
 
         '''
         events as creator
         '''
+
         as_creator_query = Events.query.filter_by(creator_id=user_id).all()
         for event in as_creator_query:
+            dict_temp = {}
             if (event.status==1):
-                list_event.append(marshal(event, Events.response_fields))
+                event_new = marshal(event, Events.response_fields)
+                as_creator_query = Users.query.get(event_new['creator_id'])
+                as_creator = marshal(as_creator_query, Users.response_fields)
+                dict_temp["event"] = event_new
+                dict_temp["creator_name"] = as_creator['username']
+                list_event.append(dict_temp)
+
                 
         return list_event, 200, {'Content-Type' : 'application/json'}
 
