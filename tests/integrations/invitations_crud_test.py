@@ -96,7 +96,7 @@ class TestInvitationsCrud():
     
     def test_invitations_reject_valid(self, client):
         token = create_token1()
-        res = client.put('/api/invitations/reject/2',
+        res = client.put('/api/invitations/reject/3',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
         res_json = json.loads(res.data)

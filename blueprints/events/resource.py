@@ -338,7 +338,6 @@ class EventsDatesGenerateResource(Resource):
         end_date_parameter = event['end_date_parameter']
         new_dt_end = end_date_parameter[:10]
 
-
         '''
         generate date interval
         '''
@@ -349,6 +348,7 @@ class EventsDatesGenerateResource(Resource):
 
         for date in date_generated:
             date_interval.append(date.strftime("%d/%m/%Y"))
+
         '''
         slicing the interval date into sub interval
         ''' 
@@ -398,6 +398,7 @@ class EventsDatesGenerateResource(Resource):
             date_match[index] = value
             date_match["Interval " + index] = dict_user_opinion 
 
+        
         if len(list_date_match) != 0:
             date_match_interval = list_date_match[0]
             attendance_match = list_attendace_match[0]
