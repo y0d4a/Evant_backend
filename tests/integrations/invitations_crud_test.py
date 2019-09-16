@@ -1,4 +1,4 @@
-from tests import app, client, cache, create_token, reset_database, create_token1
+from tests import app, client, cache, create_token, reset_database, create_token1, create_token2
 import json
 
 class TestInvitationsCrud():
@@ -18,6 +18,15 @@ class TestInvitationsCrud():
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
     
+    def test_invitations_get_none(self, client):
+        token = create_token2()
+        res = client.get('/api/invitations',
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        res_json = json.loads(res.data)
+        if res.status_code != 200:
+            raise ValueError('The res.status_code must be 200, please check your code')
+
     def test_invitations_get_invalid_no_token(self, client):
         """
         test invalid get without token
@@ -65,6 +74,15 @@ class TestInvitationsCrud():
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
     
+    def test_invitations_accept_invalid(self, client):
+        token = create_token2()
+        res = client.put('/api/invitations/accept/1',
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        res_json = json.loads(res.data)
+        if res.status_code != 404:
+            raise ValueError('The res.status_code must be 404, please check your code')
+    
     def test_invitations_accept_invalid_no_token(self, client):
         """
         test invalid accept without token
@@ -85,6 +103,15 @@ class TestInvitationsCrud():
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
     
+    def test_invitations_reject_invalid(self, client):
+        token = create_token2()
+        res = client.put('/api/invitations/reject/2',
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        res_json = json.loads(res.data)
+        if res.status_code != 404:
+            raise ValueError('The res.status_code must be 404, please check your code')
+    
     def test_invitations_reject_invalid_no_token(self, client):
         """
         test invalid reject without token
@@ -101,7 +128,7 @@ class TestInvitationsCrud():
         test invalid reject without token
         """
         token = create_token()
-        res = client.delete('/api/invitations/decline/2',
+        res = client.delete('/api/invitations/decline/1',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
 
@@ -113,9 +140,10 @@ class TestInvitationsCrud():
         """
         test invalid reject without token
         """
-        token = create_token()
+        token = create_token2()
         res = client.delete('/api/invitations/decline/2',
-                        content_type='application/json')
+                headers={'Authorization':'Bearer ' + token},
+                content_type='application/json')
 
-        if res.status_code != 401:
-            raise ValueError('The res.status_code must be 401, please check your code')    
+        if res.status_code != 404:
+            raise ValueError('The res.status_code must be 404, please check your code')    

@@ -28,7 +28,7 @@ class InvitationsResource(Resource):
 
         invitations_query = Invitations.query.filter_by(invited_id=user_id, status=0).all()
 
-        if invitations_query is None:
+        if invitations_query == []:
             return {'status':'NOT_FOUND'}, 200
         
         list_event_temporrary = []
@@ -175,7 +175,7 @@ class DeclineEventResource(Resource):
                 db.session.commit()
                 return {'status': 'DELETED'}, 200
 
-        if invitation_query is None:
+        if invitation_query == []:
             return {'status': 'NOT_FOUND'}, 404
 
 api.add_resource(InvitationsResource, '', '/accept/<event_id>')

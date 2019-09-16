@@ -29,10 +29,13 @@ def reset_database():
 
     user = Users("mahar", "maharraden765@gmail.com", password, True, True, "Raden Panji", "Jombang", "082283511672")
     user2 = Users("ranum", "ranumraden765@gmail.com", password, True, True, "Raden Panji", "Jombang", "082283511673")
-   
+    user3 = Users("agatha", "ranumraden@gmail.com", password, True, True, "Raden Panji", "Jombang", "082283511673")
+    
+
     invitation1 = Invitations(1, 1, 0)
     invitation2 = Invitations(2, 2, 0)
     invitation3 = Invitations(2, 1, 1)
+
 
     date = AvailableDates(1, '27/09/2019')
     db.session.add(date)
@@ -44,6 +47,7 @@ def reset_database():
     db.session.add(date)
     date = AvailableDates(2, '29/09/2019')
     db.session.add(date)
+
 
     user_preference = UserPreferences(1, 2, 'Dinner')
     db.session.add(user_preference)
@@ -59,6 +63,7 @@ def reset_database():
     # save users to database
     db.session.add(user)
     db.session.add(user2)
+    db.session.add(user3)    
     db.session.add(invitation1)
     db.session.add(invitation2)
     db.session.add(event1)
@@ -95,6 +100,31 @@ def create_token1():
     if token is None:
         data = {
             'username' : 'ranum',
+            'password' : 'agh765vx765'
+        }
+        # do request
+        req = call_client(request)
+        res = req.post('/api/users/login', data=json.dumps(data), content_type='application/json')
+
+        # store response
+        res_json = json.loads(res.data)
+
+        logging.warning('RESULT : %s', res_json)
+        # assert if the result is as expected
+        assert res.status_code == 200
+
+        # save token into cache
+        cache.set('test_token',res_json['token'], timeout=60)
+
+        return res_json['token']
+    else:
+        return token
+    
+def create_token2():
+    token = cache.get('test-token')
+    if token is None:
+        data = {
+            'username' : 'agatha',
             'password' : 'agh765vx765'
         }
         # do request
