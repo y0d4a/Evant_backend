@@ -23,7 +23,7 @@ class TestThirdPartyCrud():
         """class to test third party api vacation"""
 
         token = create_token()
-        res = client.get('/api/recommendation/vacation/1',
+        res = client.get('/api/recommendation/vacation/2',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
 
@@ -34,7 +34,7 @@ class TestThirdPartyCrud():
         """class to test third party api zomato"""
 
         token = create_token()
-        res = client.get('/api/recommendation/hiking/1',
+        res = client.get('/api/recommendation/hiking/2',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
 
