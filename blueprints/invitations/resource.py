@@ -29,7 +29,7 @@ class InvitationsResource(Resource):
         invitations_query = Invitations.query.filter_by(invited_id=user_id, status=0).all()
 
         if invitations_query == []:
-            return {'status':'NOT_FOUND'}, 200
+            return [], 200
         
         list_event_temporrary = []
 
@@ -163,11 +163,14 @@ class DeclineEventResource(Resource):
         user = get_jwt_identity()
         user_id = user['user_id']
 
-        invitation_query = Invitations.query.filter_by(status = 1, invited_id = user_id)
+        invitation_query = Invitations.query.filter_by(status = 1, invited_id = user_id).all()
         
         '''
         find invitation of user in specific event_id, then delete it
         '''
+        if invitation_query == []:
+            return {'status': 'NOT_FOUND'}, 404
+
         for invitation in invitation_query:
             invitation_new = marshal(invitation, Invitations.response_fields)
             if int(event_id) == invitation_new['event_id']:
@@ -175,8 +178,7 @@ class DeclineEventResource(Resource):
                 db.session.commit()
                 return {'status': 'DELETED'}, 200
 
-        if invitation_query == []:
-            return {'status': 'NOT_FOUND'}, 404
+ 
 
 api.add_resource(InvitationsResource, '', '/accept/<event_id>')
 api.add_resource(InvitationsRejectResource, '/reject/<event_id>')
