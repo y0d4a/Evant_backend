@@ -40,6 +40,18 @@ class TestDatesCrud():
                         content_type='application/json')
         res_json = json.loads(res.data)
         if res.status_code != 200:
+            raise ValueError('The res.status_code must be 404, please check your code')
+    
+    def test_dates_delete_invalid(self, client):
+        token = create_token()
+        data = {
+            "date": "22-01-2020"
+        }
+        res = client.delete('/api/date', data=json.dumps(data),
+                        headers={'Authorization':'Bearer ' + token},
+                        content_type='application/json')
+        res_json = json.loads(res.data)
+        if res.status_code != 404:
             raise ValueError('The res.status_code must be 200, please check your code')
 
     def test_dates_delete_invalid_no_token(self, client):
