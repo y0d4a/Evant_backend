@@ -168,6 +168,9 @@ class DeclineEventResource(Resource):
         '''
         find invitation of user in specific event_id, then delete it
         '''
+        if invitation_query is None:
+            return {'status': 'NOT_FOUND'}, 404
+
         for invitation in invitation_query:
             invitation_new = marshal(invitation, Invitations.response_fields)
             if int(event_id) == invitation_new['event_id']:
@@ -175,8 +178,7 @@ class DeclineEventResource(Resource):
                 db.session.commit()
                 return {'status': 'DELETED'}, 200
 
-        if invitation_query == []:
-            return {'status': 'NOT_FOUND'}, 404
+ 
 
 api.add_resource(InvitationsResource, '', '/accept/<event_id>')
 api.add_resource(InvitationsRejectResource, '/reject/<event_id>')
