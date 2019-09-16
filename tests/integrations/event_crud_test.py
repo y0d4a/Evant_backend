@@ -12,8 +12,8 @@ class TestEventCrud():
         data = {
 	        "category": "LIBURAN",
 	        "event_name" : "Pingin Liburan ke Bali",
-	        "start_date_parameter": "2019/09/26",
-	        "end_date_parameter": "2019/10/03",
+	        "start_date_parameter": "26/09/2019",
+	        "end_date_parameter": "03/10/2019",
 	        "duration":3
         }
 
@@ -52,8 +52,8 @@ class TestEventCrud():
     def test_event_put(self, client):
         token = create_token()
         data = {
-	        "start_date_parameter": "2019/09/26",
-	        "end_date_parameter": "2019/10/03",
+	        "start_date_parameter": "26/09/2019",
+	        "end_date_parameter": "03/10/2019",
 	        "duration":2
         }
         res = client.put('/api/events/2', data=json.dumps(data), headers={'Authorization':'Bearer ' + token}, content_type='application/json')
@@ -64,8 +64,8 @@ class TestEventCrud():
     def test_event_put_invalid(self, client):
         token = create_token()
         data = {
-	        "start_date_parameter": "2019/09/26",
-	        "end_date_parameter": "2019/10/03",
+	        "start_date_parameter": "26/09/2019",
+	        "end_date_parameter": "03/10/2019",
 	        "duration":2
         }
         res = client.put('/api/events/2', data=json.dumps(data), content_type='application/json')

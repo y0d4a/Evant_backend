@@ -338,7 +338,11 @@ class EventsDatesGenerateResource(Resource):
         end_date_parameter = event['end_date_parameter']
         new_dt_end = end_date_parameter[:10]
 
+<<<<<<< HEAD
         # return new_dt_start, 200
+=======
+
+>>>>>>> 06201a4f59afff89613d8e0ee326b07c77df9bfe
         '''
         generate date interval
         '''
@@ -349,9 +353,12 @@ class EventsDatesGenerateResource(Resource):
 
         for date in date_generated:
             date_interval.append(date.strftime("%d/%m/%Y"))
+<<<<<<< HEAD
         
         # return date_interval, 200
         
+=======
+>>>>>>> 06201a4f59afff89613d8e0ee326b07c77df9bfe
         '''
         slicing the interval date into sub interval
         ''' 
@@ -411,19 +418,21 @@ class EventsDatesGenerateResource(Resource):
             attendance_match = list_attendance_most_match[0]
             result = "MOST OF YOU AVAILABLE IN THIS DATE"  
         else :
-            date_match_interval = []   
+            date_match_interval = [] 
+            attendance_match = []
             result = "DATES NOT FOUND"
         
         date_result = {'summary' : result,
                         'result' :{'date': date_match_interval,'attendance':attendance_match}}
 
         event_query = Events.query.get(event_id)
-        event_query.start_date = date_match_interval[0]
-        event_query.end_date = date_match_interval[-1]
+        if len(date_match_interval) != 0:
+            event_query.start_date = date_match_interval[0]
+            event_query.end_date = date_match_interval[-1]
+            db.session.commit()
 
-        db.session.commit()
 
-        return list_date_most_match, 200
+        return date_match_interval, 200
 
 
 class GetAllParticipantsEvent(Resource):
