@@ -63,18 +63,31 @@ class TestUsersCrud():
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
     
-    def test_users_invalid_login(self, client):
+    def test_users_invalid_login_credential(self, client):
         """ test invalid POST with bad request 401 """
         
         data = {
-            'username':'ranpa16',
-            'password':'123456',
+            'username':'ranum',
+            'password':'agh765vadsadsadsax765',
         }
 
         res = client.post('/api/users/login', data=json.dumps(data),
                         content_type='application/json')
         
         if res.status_code != 401:
+            raise ValueError('The res.status_code must be 401, please check your code')
+    
+    def test_users_invalid_login(self, client):
+        """ test invalid POST with bad request 400 """
+        
+        data = {
+            'password':'agh765vx765',
+        }
+
+        res = client.post('/api/users/login', data=json.dumps(data),
+                        content_type='application/json')
+        
+        if res.status_code != 400:
             raise ValueError('The res.status_code must be 401, please check your code')
 
     def test_users_post(self, client):

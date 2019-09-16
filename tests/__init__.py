@@ -1,6 +1,7 @@
 import pytest, json, logging
 from flask import Flask, request
 from blueprints.users.model import Users
+from passlib.hash import sha256_crypt
 from blueprints.invitations.model import Invitations
 from blueprints.available_dates.model import AvailableDates
 from blueprints.user_preferences.model import UserPreferences
@@ -22,9 +23,12 @@ def reset_database():
 
     db.drop_all()
     db.create_all()
+    
 
-    user = Users("mahar", "maharraden765@gmail.com", "agh765vx765", True, True, "Raden Panji", "Jombang", "082283511672")
-    user2 = Users("ranum", "ranumraden765@gmail.com", "agh765vx765", True, True, "Raden Panji", "Jombang", "082283511673")
+    password = sha256_crypt.encrypt("agh765vx765")
+
+    user = Users("mahar", "maharraden765@gmail.com", password, True, True, "Raden Panji", "Jombang", "082283511672")
+    user2 = Users("ranum", "ranumraden765@gmail.com", password, True, True, "Raden Panji", "Jombang", "082283511673")
    
     invitation1 = Invitations(1, 1, 0)
     invitation2 = Invitations(2, 2, 0)

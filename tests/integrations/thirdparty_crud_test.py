@@ -14,7 +14,7 @@ class TestThirdPartyCrud():
         res = client.get('/api/recommendation/eat/2',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
-        res_json = json.loads(res.data)
+
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
     
@@ -26,7 +26,7 @@ class TestThirdPartyCrud():
         res = client.get('/api/recommendation/vacation/1',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
-        res_json = json.loads(res.data)
+
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
     
@@ -37,7 +37,7 @@ class TestThirdPartyCrud():
         res = client.get('/api/recommendation/hiking/1',
                         headers={'Authorization':'Bearer ' + token},
                         content_type='application/json')
-        res_json = json.loads(res.data)
+
         if res.status_code != 200:
             raise ValueError('The res.status_code must be 200, please check your code')
 
