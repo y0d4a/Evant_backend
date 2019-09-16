@@ -338,11 +338,6 @@ class EventsDatesGenerateResource(Resource):
         end_date_parameter = event['end_date_parameter']
         new_dt_end = end_date_parameter[:10]
 
-<<<<<<< HEAD
-        # return new_dt_start, 200
-=======
-
->>>>>>> 06201a4f59afff89613d8e0ee326b07c77df9bfe
         '''
         generate date interval
         '''
@@ -353,12 +348,7 @@ class EventsDatesGenerateResource(Resource):
 
         for date in date_generated:
             date_interval.append(date.strftime("%d/%m/%Y"))
-<<<<<<< HEAD
-        
-        # return date_interval, 200
-        
-=======
->>>>>>> 06201a4f59afff89613d8e0ee326b07c77df9bfe
+
         '''
         slicing the interval date into sub interval
         ''' 
