@@ -110,3 +110,5 @@ venv.bak/
 
 #ignore config.py
 config.py
+
+deploy_rsa.pub
