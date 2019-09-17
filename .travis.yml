@@ -28,8 +28,8 @@ after_script:
   - mkdir -p ./storage/log/
   - docker build -t ${DOCKER_HUB_ORG}/${DOCKER_IMAGE_NAME}:${TRAVIS_BUILD_ID}
     .
-  - docker push ${DOCKER_HUB_ORG}/${DOCKER_IMAGE_NAME}:production-${TRAVIS_BUILD_ID}
-  - docker tag ${DOCKER_HUB_ORG}/${DOCKER_IMAGE_NAME}:production-${TRAVIS_BUILD_ID}
+  - docker push ${DOCKER_HUB_ORG}/${DOCKER_IMAGE_NAME}:${TRAVIS_BUILD_ID}
+  - docker tag ${DOCKER_HUB_ORG}/${DOCKER_IMAGE_NAME}:${TRAVIS_BUILD_ID}
     ${DOCKER_USERNAME}/${DOCKER_IMAGE_NAME}:latest
   - docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}" && docker push ${DOCKER_HUB_ORG}/${DOCKER_IMAGE_NAME}:latest
   - ssh-keyscan -H $SSH_IP >> ~/.ssh/known_hosts
