@@ -1,4 +1,4 @@
-udo: required
+sudo: required
 language: generic
 services:
   - docker
@@ -19,8 +19,8 @@ script:
   - sudo chmod +x deploy.sh
   - sudo chmod 600 deploy_rsa
   - sudo echo -e "class Config():\n\tpass\nclass DevelopmentConfig(Config):\n\tDEBUG
-    = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:evantadmin@evant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant'\n\nclass
-    TestingConfig(Config):\n\tTESTING = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:evantadmin@evant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant_testing'"
+    = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:${PASSWORD}@evant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant'\n\nclass
+    TestingConfig(Config):\n\tTESTING = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:${PASSWORD}@evant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant_testing'"
     > config.py
 after_script:
   - docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
