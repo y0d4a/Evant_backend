@@ -14,19 +14,23 @@ bp_third_party = Blueprint('third_party',__name__)
 api = Api(bp_third_party)
 
 class RecommendationPlaceToEat(Resource):
-    '''
-    Class to get recommendation place depend on user preference
-    '''
 
+    """
+    Class to get recommendation place depend on user preference
+    """
+
+    '''
+    Zomato host and api key
+    '''
     zmt_host = 'https://developers.zomato.com/api/v2.1'
     zmt_apikey = 'b875502a178dcc62abd9f3437d92fbe5'
 
     @jwt_required
     def get(self,event_id = None):
-        '''
-        function to get dominant preferences
-        '''
 
+        """
+        function to get dominant preferences
+        """
         creator = get_jwt_identity()
         preferences = UserPreferences.query.filter_by(event_id = event_id)
         
@@ -55,37 +59,44 @@ class RecommendationPlaceToEat(Resource):
         '''
         Generate Zomato API to get place recommendation
         '''
-
         location_request = requests.get(self.zmt_host + '/locations', params={'query':'jakarta'},headers={'user-key': self.zmt_apikey})
         geo = location_request.json()
         latitude  = geo['location_suggestions'][0]['latitude']
         longitude  = geo['location_suggestions'][0]['longitude']
 
-        zomato_request = requests.get(self.zmt_host + '/search', params={'lat': latitude, 'lon': longitude, 'category': dominant_preference}, headers={'user-key' : self.zmt_apikey})
+        zomato_request = requests.get(self.zmt_host + '/search', params={'lat': latitude, 'lon': longitude, 'category':dominant_preference}, headers={'user-key' : self.zmt_apikey})
         restaurants = zomato_request.json()
+
+        restaurant_count = len(restaurants['restaurants'])
+        idx_restaurant = list(range(0,restaurant_count))
+        restaurant_show = random.sample(idx_restaurant,3)
 
         restaurant_list = []
 
-        for restaurant in range(0,3):
+        for restaurant in restaurant_show:
             response_dummy = {
-                'restaurants' : restaurants['restaurants'][restaurant]['restaurant']['name'],
-                'address' : restaurants['restaurants'][restaurant]['restaurant']['location']['address'],
+                'place' : restaurants['restaurants'][restaurant]['restaurant']['name'],
+                'place_location' : restaurants['restaurants'][restaurant]['restaurant']['location']['address'],
                 'photo' : restaurants['restaurants'][restaurant]['restaurant']['photos'][0]['photo']['thumb_url']
             }
             restaurant_list.append(response_dummy)
         
         event_query = Events.query.get(event_id)
-        event_query.place_name = restaurant_list[0]['restaurants']
-        event_query.place_location = restaurant_list[0]['address']
+        event_query.preference = dominant_preference
         db.session.commit()
 
         return restaurant_list, 200, {'Content-Type' : 'application/json'}
 
 
-
 class RecommendationPlaceToVacation(Resource):
-    """Class to get recommendation place depend on user preference"""
 
+    """
+    Class to get recommendation place depend on user preference
+    """
+
+    '''
+    Open trip host and api key
+    '''
     holiday_host = 'https://opentripmap-places-v1.p.rapidapi.com/en/places/bbox'
     photo_holiday_host = 'https://opentripmap-places-v1.p.rapidapi.com/en/places/xid/'
     holiday_key = 'd8dbe8efcfmsh22520433e8bc04fp138102jsnb6ebeee18548'
@@ -93,9 +104,10 @@ class RecommendationPlaceToVacation(Resource):
 
     @jwt_required
     def get(self,event_id = None):
-        '''
+
+        """
         function to get dominant preferences
-        '''
+        """
         creator = get_jwt_identity()
         preferences = UserPreferences.query.filter_by(event_id = event_id)
         
@@ -124,64 +136,65 @@ class RecommendationPlaceToVacation(Resource):
         '''
         Generate Location API to get place recommendation
         '''
-
         location_host = 'https://api.opencagedata.com/geocode/v1/json'
         location_key = '27c217069e864fc4a6af09e706428fed'
-        
-        place = ['Jakarta', 'Bali', 'Medan', 'Surakarta', 'Balikpapan']
-        destination = random.choice(place)
 
-        location_request = requests.get(location_host, params={'q':destination, 'key':location_key})
+        location_request = requests.get(location_host, params={'q':dominant_preference, 'key':location_key})
         geo = location_request.json()   
-        latitude  = geo['results'][1]['bounds']['northeast']['lat']
-        longitude = geo['results'][1]['bounds']['northeast']['lng']
+        latitude  = geo['results'][0]['bounds']['southwest']['lat']
+        longitude = geo['results'][0]['bounds']['southwest']['lng']
 
         latitude = int(latitude)
-        latitude_min = latitude-2
-        latitude_max = latitude+2
+        latitude_min = latitude - 2
+        latitude_max = latitude + 2
 
         longitude = int(longitude)
-        longitude_min = longitude-2
-        longitude_max = longitude+2
+        longitude_min = longitude - 2
+        longitude_max = longitude + 2
         
-        vacation_request = requests.get(self.holiday_host, params={'lon_min':longitude_min, 'lon_max': longitude_max, 'lat_min': latitude_min, 'lat_max':latitude_max, 'kinds':'cultural'}, headers={'x-rapidapi-key' : self.holiday_key})
+        vacation_request = requests.get(self.holiday_host, params={'lon_min':longitude_min, 'lon_max': longitude_max, 'lat_min': latitude_min, 'lat_max':latitude_max}, headers={'x-rapidapi-key' : self.holiday_key})
+
         vacations = vacation_request.json()
 
         vacation_list = []
 
         for vacation in range(3):
-
             xid = vacations['features'][vacation]['properties']['xid']  
             photo_request = requests.get(self.photo_holiday_host+ str(xid), headers={'x-rapidapi-key' : self.holiday_key})
             photo = photo_request.json()
             response_dummy = {
                 'place' : vacations['features'][vacation]['properties']['name'],
-                'place location' : destination,
-                'photo' : photo['image']
+                'place_location' : dominat_preference,
+                'photo' : photo['preview']['source']
             }
 
             vacation_list.append(response_dummy)
         
         event_query = Events.query.get(event_id)
-        event_query.place_name = vacation_list[0]['place']
-        event_query.place_location = destination
+        event_query.preference = dominant_preference
         db.session.commit()
 
         return vacation_list, 200, {'Content-Type' : 'application/json'}
   
     
-
 class RecommendationPlaceToHike(Resource):
-    """Class to get recommendation hiking place depend on user preference"""
 
+    """
+    Class to get recommendation hiking place depend on user preference
+    """
+
+    '''
+    Hikingproject host and api key
+    '''
     hiking_host = 'https://www.hikingproject.com/data/get-trails'
     hiking_key = '200590840-81a8541f9a61f725af8793b6d29cf8bb'
 
     @jwt_required
     def get(self,event_id = None):
-        '''
+
+        """
         function to get dominant preferences
-        '''
+        """
         creator = get_jwt_identity()
         preferences = UserPreferences.query.filter_by(event_id = event_id)
         
@@ -216,30 +229,29 @@ class RecommendationPlaceToHike(Resource):
         location_request = requests.get(location_host, params={'q':dominant_preference, 'key':location_key})
         geo = location_request.json()
 
-        latitude  = geo['results'][1]['bounds']['southwest']['lat']
-        longitude = geo['results'][1]['bounds']['southwest']['lng']
+        latitude  = geo['results'][0]['bounds']['southwest']['lat']
+        longitude = geo['results'][0]['bounds']['southwest']['lng']
         maxDistance = 200
         
         hiking_request = requests.get(self.hiking_host, params={'lat': latitude, 'lon': longitude, 'maxDistance': maxDistance, 'key':self.hiking_key})
         hikings = hiking_request.json()
         hiking_list = []
 
-        for hiking in range(len(hikings['trails'])):
+        for hiking in range(3):
             
             response_dummy = {
                 'place' : hikings['trails'][hiking]['name'],
-                'place location' : dominant_preference,
+                # 'place_location' : dominant_preference,
                 'photo' : hikings['trails'][hiking]['imgMedium']
             }
 
             hiking_list.append(response_dummy)
 
         event_query = Events.query.get(event_id)
-        event_query.place_name = hiking_list[0]['place']
-        event_query.place_location = dominant_preference
+        event_query.preference = dominant_preference
         db.session.commit()
     
-        return hiking_list, 200, {'Content-Type' : 'application/json'}
+        return hikings, 200, {'Content-Type' : 'application/json'}
 
 
 api.add_resource(RecommendationPlaceToEat,'/eat/<event_id>','/eat')

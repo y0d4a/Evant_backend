@@ -9,12 +9,13 @@ bp_available_dates = Blueprint("dates", __name__)
 api = Api(bp_available_dates)
 
 class DateResource (Resource):
+
     """Class for add date, delete date, and generate result date"""
 
     @jwt_required
     def post(self):
-        """this function for add available dates to database"""
 
+        """method to add user available dates to database"""
         identity = get_jwt_identity()
         user_id = identity['user_id']
 
@@ -34,8 +35,8 @@ class DateResource (Resource):
 
     @jwt_required
     def delete(self):
-        """this function for delete available date by id"""
 
+        """method to delete available date by id"""
         parser = reqparse.RequestParser()
         parser.add_argument('date', location='json')
         args = parser.parse_args()
@@ -49,13 +50,14 @@ class DateResource (Resource):
         db.session.commit()
 
         app.logger.debug('DEBUG : %s', available_dates)
+        
         return {'status': 'DELETED'}, 200
 
 
     @jwt_required
     def get(self):
-        """this function for marking calender depend on available dates"""
 
+        """method to mark calendar depending on available dates"""
         identity = get_jwt_identity()
         user_id = identity['user_id']
 

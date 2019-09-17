@@ -14,6 +14,26 @@ from blueprints import db, app
 bp_events = Blueprint('events', __name__)
 api = Api(bp_events)
 
+def rangeBetweenDate(date1, date2):
+    if date1==None or date2==None:
+        return []
+    start = datetime.datetime.strptime(date1, '%d/%m/%Y')
+    end = datetime.datetime.strptime(date2, '%d/%m/%Y')
+    step = datetime.timedelta(days=1)
+    lst = []
+    while start <= end:
+        lst.append((slashFormat(start.date())))
+        start += step
+    return lst
+
+
+def slashFormat(tanggal):
+    date = str(tanggal)
+    day = date[8:10]
+    month = date[5:7]
+    year = date[0:4]
+    return '{dd}/{mm}/{yy}'.format(dd=day, mm=month, yy=year)
+
 class EventsResource(Resource):
 
     """
@@ -29,11 +49,11 @@ class EventsResource(Resource):
         parser = reqparse.RequestParser()
         identity = get_jwt_identity()
        
-        parser.add_argument('category', location='json', required=False)
-        parser.add_argument('event_name', location='json', required=False)
-        parser.add_argument('start_date_parameter', location='json', required=False, help="Mohon untuk mengisi kapan event akan dimulai")
-        parser.add_argument('end_date_parameter', location='json', required=False, help="Mohon untuk mengisi kapan event akan berakhir")
-        parser.add_argument('duration', location='json', required=False, help="mohon untuk mengisi berapa lama event akan diadakan")
+        parser.add_argument('category', location='json', required=True)
+        parser.add_argument('event_name', location='json', required=True)
+        parser.add_argument('start_date_parameter', location='json', required=True, help="Please fill the start date of your event")
+        parser.add_argument('end_date_parameter', location='json', required=True, help="Please fill the end date of your event")
+        parser.add_argument('duration', location='json', required=True, help="Please fill the duration of your event")
 
         event_data = parser.parse_args()
 
@@ -80,8 +100,9 @@ class EventsResource(Resource):
         event_query = Events.query.get(event_id)
 
         if event_query is None:
-            return {'status':'event not found'}, 404
-        
+            return {'status':'NOT_FOUND'}, 404
+
+        '''to check if the field is edited or not'''    
         if event_data['category'] is not None:
             event_query.category = event_data['category'] 
         if event_data['event_name'] is not None:
@@ -118,9 +139,18 @@ class EventsResource(Resource):
         event_query = Events.query.get(event_id)
 
         if event_query is None:
-            return {'status':'event not found'}, 404
-        
-        return marshal(event_query, Events.response_fields), 200, {'Content-Type' : 'application/json'}
+            return {'status':'NOT_FOUND'}, 404
+
+        result = marshal(event_query, Events.response_fields)
+
+        '''
+        add new parameter to output
+        '''
+        creator = Users.query.get(event_query.creator_id)
+        result['creator_username']= creator.username
+        result['creator_fullname']=creator.fullname
+
+        return result, 200, {'Content-Type' : 'application/json'}
 
     @jwt_required
     def delete(self, event_id):
@@ -131,17 +161,17 @@ class EventsResource(Resource):
         event_query = Events.query.get(event_id)
 
         if event_query is None:
-            return {'status':'event not found'}, 404
+            return {'status':'NOT_FOUND'}, 404
         
         db.session.delete(event_query)
         db.session.commit()
 
-        return {'status':'delete success'}, 200
+        return {'status':'DELETE_SUCCESS'}, 200
 
 class EventsOngoingResource(Resource):
 
     """
-    method to edit events
+    class for ongoing events
     """
     
     @jwt_required
@@ -158,12 +188,18 @@ class EventsOngoingResource(Resource):
 
         list_event = []
 
+        '''
+        query to get events as creator
+        '''
         for event in events_as_creator:
             temp = marshal(event, Events.response_fields)
             creator_name = Users.query.get(event.creator_id).username
             temp['creator_name'] = creator_name
             list_event.append(temp)
-
+        
+        '''
+        query to get events as participant
+        '''
         for invitaion in invitation_query:
             event_id = invitaion.event_id
             event_query = Events.query.get(event_id)
@@ -175,41 +211,67 @@ class EventsOngoingResource(Resource):
         
         return list_event, 200, {'Content-Type' : 'application/json'}
 
-
 class EventsHistoryResource(Resource):
 
     """
-    method to edit events
+    class for past events
     """
     
     @jwt_required
     def get(self):
+
         """
-        method to get all ongoing events
+        method to get all past events
         """
         identity = get_jwt_identity()
         user_id = identity['user_id']
 
+        '''
+        events as participant
+        '''
         invitation_query = Invitations.query.filter_by(invited_id=user_id, status=1).all()
+        
 
         list_event = []
 
         for invitaion in invitation_query:
             event_id = invitaion.event_id
             event_query = Events.query.get(event_id)
+            dict_temp = {}
             if event_query.status == 1:
-                list_event.append(marshal(event_query, Events.response_fields))
-        
+                event_new = marshal(event_query, Events.response_fields)
+                as_creator_query = Users.query.get(event_new['creator_id'])
+                as_creator = marshal(as_creator_query, Users.response_fields)
+                dict_temp["event"] = event_new
+                dict_temp["creator_name"] = as_creator['username']
+
+        '''
+        events as creator
+        '''
+
+        as_creator_query = Events.query.filter_by(creator_id=user_id).all()
+        for event in as_creator_query:
+            dict_temp = {}
+            if (event.status==1):
+                event_new = marshal(event, Events.response_fields)
+                as_creator_query = Users.query.get(event_new['creator_id'])
+                as_creator = marshal(as_creator_query, Users.response_fields)
+                dict_temp["event"] = event_new
+                dict_temp["creator_name"] = as_creator['username']
+                list_event.append(dict_temp)
+
+                
         return list_event, 200, {'Content-Type' : 'application/json'}
 
 class EventsPreferenceResource(Resource):
 
     """
-    class to edit/add preference which is the the dominant preference from all member
+    class to edit and add preference to determine the dominant preference from all member
     """
     
     @jwt_required
     def get(self, event_id):
+
         """
         function to get dominant preferences
         """
@@ -238,16 +300,17 @@ class EventsPreferenceResource(Resource):
         
         dominant_preference = max(dictionary_count_value.items(), key=operator.itemgetter(1))[0]
         
-
         return {"dominant_preference" : dominant_preference, "dictionary_count_value": dictionary_count_value}, 200, {'Content-Type' : 'application/json'}
 
 class EventsDatesGenerateResource(Resource):
 
     """
-    class to generate date    """
+    class for generate suggestion date for an event
+    """
 
     @jwt_required
     def get(self, event_id):
+
         '''
         get creator_id by event id
         '''
@@ -274,7 +337,6 @@ class EventsDatesGenerateResource(Resource):
                 list_temporary_date.append(value_new['date'])
             dictionary_date[user_id] = list_temporary_date
 
-
         '''
         get event duration
         '''
@@ -282,9 +344,8 @@ class EventsDatesGenerateResource(Resource):
         event = marshal(event_query, Events.response_fields)
         duration = event['duration']
 
-
         '''
-        get event start/end_date_parameter
+        get event start date parameter and end date parameter
         '''
         start_date_parameter = event['start_date_parameter']
         new_dt_start = start_date_parameter[:10]
@@ -295,13 +356,13 @@ class EventsDatesGenerateResource(Resource):
         generate date interval
         '''
         date_interval = []
-        start = datetime.datetime.strptime(new_dt_start, "%Y/%m/%d")
-        end = datetime.datetime.strptime(new_dt_end, "%Y/%m/%d")
+        start = datetime.datetime.strptime(new_dt_start, "%d/%m/%Y")
+        end = datetime.datetime.strptime(new_dt_end, "%d/%m/%Y")
         date_generated = [start + datetime.timedelta(days=dt) for dt in range(0, ((end-start).days)+1)]
 
         for date in date_generated:
             date_interval.append(date.strftime("%d/%m/%Y"))
-        
+
         '''
         slicing the interval date into sub interval
         ''' 
@@ -329,59 +390,64 @@ class EventsDatesGenerateResource(Resource):
                     user_query = Users.query.get(user_id)
                     user = marshal(user_query, Users.response_fields)
                     username = user['username']
-                    dict_user_opinion[username] = "Bisa"
+                    dict_user_opinion[username] = "Available"
                     agreement_count += 1
                 else:
                     user_query = Users.query.get(user_id)
                     user = marshal(user_query, Users.response_fields)
                     username = user['username']
-                    dict_user_opinion[username] = "Tidak Bisa"
+                    dict_user_opinion[username] = "Not Available"
 
             if len(dictionary_date) == agreement_count:
-                date_match["result"+index] = "ALL OF YOU CAN ATTEND IN THIS DATES"   
+                date_match["result" + index] = "ALL OF YOU CAN ATTEND IN THIS DATES"   
                 list_date_match.append(value)
                 list_attendace_match.append(dict_user_opinion)
-            elif (len(dictionary_date)/2) > agreement_count:
-                date_match["result"+index] = "DATES NOT FOUND"        
+            elif (len(dictionary_date) / 2) > agreement_count:
+                date_match["result" + index] = "DATES NOT FOUND"        
             else :
-                date_match["result"+index] = "MOST OF YOU AVAILABLE IN THIS DATES"       
+                date_match["result" + index] = "MOST OF YOU AVAILABLE IN THIS DATES"       
                 list_date_most_match.append(value)
                 list_attendance_most_match.append(dict_user_opinion)
 
             date_match[index] = value
-            date_match["Interval "+index] = dict_user_opinion 
+            date_match["Interval " + index] = dict_user_opinion 
 
-        if list_date_match is not None:
+        
+        if len(list_date_match) != 0:
             date_match_interval = list_date_match[0]
             attendance_match = list_attendace_match[0]
-            result = "ALL OF YOU CAN ATTEND IN THIS DATES"
-        elif list_date_most_match is not None :
-            date_match_interval = list_date_most_match
+            result = "ALL OF YOU CAN ATTEND IN THIS DATE"
+        elif len(list_date_most_match) != 0:
+            date_match_interval = list_date_most_match[0]
             attendance_match = list_attendance_most_match[0]
-            result = "MOST OF YOU AVAILABLE IN THIS DATES"  
+            result = "MOST OF YOU AVAILABLE IN THIS DATE"  
         else :
-            date_match_interval = []   
+            date_match_interval = [] 
+            attendance_match = []
             result = "DATES NOT FOUND"
         
         date_result = {'summary' : result,
                         'result' :{'date': date_match_interval,'attendance':attendance_match}}
 
         event_query = Events.query.get(event_id)
-        event_query.start_date = date_match_interval[0]
-        event_query.end_date = date_match_interval[-1]
+        if len(date_match_interval) != 0:
+            event_query.start_date = date_match_interval[0]
+            event_query.end_date = date_match_interval[-1]
+            db.session.commit()
 
-        db.session.commit()
 
-        return date_result, 200
+        return date_match_interval, 200
 
 
 class GetAllParticipantsEvent(Resource):
-    """ Class to get all participant in Event """
+
+    """ Class for getting all participant in Event """
     
     @jwt_required
     def get(self, event_id):
+
         """ 
-        function to get participant in some event
+        method to get participant in some event
         """
 
         '''
@@ -398,14 +464,15 @@ class GetAllParticipantsEvent(Resource):
         creator_identity = {
             'id_participant': creator_id,
             'username': creator_username,
-            'fullname': creator_fullname
+            'fullname': creator_fullname,
+            'status': 'creator'
         }
 
         '''
         get participant_id as invited
         '''
         list_of_participants = []
-        participants_query = Invitations.query.filter_by(event_id = event_id)
+        participants_query = Invitations.query.filter_by(event_id = event_id, status=1)
         for participant in participants_query:
             participant_new = marshal(participant, Invitations.response_fields)
             participant_id = participant_new['invited_id']
@@ -415,6 +482,7 @@ class GetAllParticipantsEvent(Resource):
             dictionary_participant['id_participant'] = user_as_participant['user_id']
             dictionary_participant['username'] = user_as_participant['username']
             dictionary_participant['fullname'] = user_as_participant['fullname']
+            dictionary_participant['status'] = 'participant'
             list_of_participants.append(dictionary_participant)
         
         list_of_participants.append(creator_identity)
@@ -422,15 +490,16 @@ class GetAllParticipantsEvent(Resource):
         return list_of_participants, 200, {'Content-Type' : 'application/json'}
 
 class AllUserPreference(Resource):
+
     """
     class for getting all preference from participant
     """
 
     def get(self, event_id):
+
         """
         function to get all user preference in certain event
         """
-
         user_preferences_query = UserPreferences.query.filter_by(event_id=event_id)
 
         '''
@@ -450,6 +519,83 @@ class AllUserPreference(Resource):
         
         return list_of_user_preference, 200, {'Content-Type' : 'application/json'}
 
+class BookedDateResource(Resource):
+    @jwt_required
+    def get(self):
+        '''method to get all book date'''
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
+
+        booked_dates = []
+        all_booked_dates = []
+
+        '''get event as creator'''
+        events_as_creator = Events.query.filter_by(creator_id=user_id).all()
+
+        '''input range date to booked_dates'''
+        for event in events_as_creator:
+            print(event.event_name)
+            start_date = event.start_date
+            end_date = event.end_date
+            dates = rangeBetweenDate(start_date,end_date)
+            if dates == []:
+                continue
+            
+            all_booked_dates+=dates
+
+            temp = {
+                'event_name':event.event_name,
+                'event_id':event.event_id,
+                'booked':dates,
+                'status':'creator'
+            }
+            booked_dates.append(temp)
+
+        '''get event as participant'''
+        my_invitations = Invitations.query.filter_by(invited_id=user_id, status=1).all()
+
+        '''input range date to booked_dates'''
+        for invitation in my_invitations:
+            my_event_id = invitation.event_id
+            my_event = Events.query.get(my_event_id)
+            start_date = my_event.start_date
+            end_date = my_event.end_date
+            dates = rangeBetweenDate(start_date,end_date)
+            if dates == []:
+                continue
+
+            all_booked_dates+=dates
+
+            temp = {
+                'event_name':my_event.event_name,
+                'event_id':my_event_id,
+                'booked':dates,
+                'status':'participant'
+            }
+            booked_dates.append(temp)
+
+        return {'booked_event':booked_dates, 'all_booked_dates':all_booked_dates}, 200, {'Content-Type' : 'application/json'}
+
+class CountMonthResource(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('start_date', location='json')
+        parser.add_argument('end_date', location='json')
+        args = parser.parse_args()
+
+        day_range = rangeBetweenDate(args['start_date'], args['end_date'])
+        month_list = []
+        year_list = []
+        for date in day_range:
+            month = date[3:5]
+            year = date[6:10]
+            if month_list == [] or month not in month_list:
+                month_list.append(month)
+            
+            if year_list == [] or year not in year_list:
+                year_list.append(year)
+
+        return {'month':month_list, 'year':year_list}
 
 api.add_resource(EventsResource, '','/<event_id>')
 api.add_resource(EventsOngoingResource, '/ongoing')
@@ -458,3 +604,6 @@ api.add_resource(EventsPreferenceResource, '/dominant_preference/<event_id>')
 api.add_resource(EventsDatesGenerateResource, '/generate_date/<event_id>')
 api.add_resource(GetAllParticipantsEvent, '/list_of_participant/<event_id>')
 api.add_resource(AllUserPreference, '/all_user_preference/<event_id>')
+api.add_resource(BookedDateResource, '/booked')
+api.add_resource(CountMonthResource, '/count')
+

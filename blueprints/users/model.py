@@ -9,12 +9,12 @@ class Users(db.Model):
     user_id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(100), nullable = False, unique = True)
     email = db.Column(db.String(100), nullable = False, unique = True)
-    password = db.Column(db.String(100), nullable = False)
-    gender = db.Column(db.Boolean, nullable = False)
-    status_first_login = db.Column(db.Boolean, nullable = False)
+    password = db.Column(db.String(100), nullable = True)
+    gender = db.Column(db.Boolean, nullable = True)
+    status_first_login = db.Column(db.Boolean, nullable = True)
     fullname = db.Column(db.String(100), nullable = True)
     address = db.Column(db.String(100), nullable = True)
-    phone = db.Column(db.String(30), nullable = True, unique = True)
+    phone = db.Column(db.String(30), nullable = True)
 
     response_fields = {
         'user_id' : fields.Integer,
@@ -39,7 +39,7 @@ class Users(db.Model):
         'phone' : fields.String,
     }
 
-    def __init__(self, username, email, password, gender, status_first_login, fullname = None, address = None, phone = None):
+    def __init__(self, username, email, password=None, gender=None, status_first_login=None, fullname = None, address = None, phone = None):
         self.username = username
         self.email = email
         self.password = password

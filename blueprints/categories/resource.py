@@ -10,11 +10,12 @@ api = Api(bp_categories)
 
 
 class CategoryResource (Resource):
+
     """Class for add preference category and get all preference category"""
 
     def post(self):
-        """this function for add preference category"""
 
+        """method to add preference category"""
         parser = reqparse.RequestParser()
         parser.add_argument('preference', location='json')
         parser.add_argument('category', location='json')
@@ -28,11 +29,11 @@ class CategoryResource (Resource):
 
         return marshal(category, Categories.response_fields), 200, {'Content-Type' : 'application/json'}
     
-
+    
     @jwt_required
     def get(self):
-        """Get all category from certain preferences"""			
 
+        """method to get all category from certain preferences"""			
         parser = reqparse.RequestParser()
         parser.add_argument('category', type = str, location = 'args', required = True)
         args = parser.parse_args()

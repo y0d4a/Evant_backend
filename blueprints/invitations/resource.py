@@ -28,8 +28,8 @@ class InvitationsResource(Resource):
 
         invitations_query = Invitations.query.filter_by(invited_id=user_id, status=0).all()
 
-        if invitations_query is None:
-            return {'status':'no invitations'}, 200
+        if invitations_query == []:
+            return [], 200
         
         list_event_temporrary = []
 
@@ -77,21 +77,26 @@ class InvitationsResource(Resource):
         identity = get_jwt_identity()
         user_id = int(identity['user_id'])
 
-        # parser.add_argument('event_id', location='json', required=False)
         parser.add_argument('invited_id', location='json', required=True)
         invitation_data = parser.parse_args()
 
-        ''' Take all event id by creator_id '''
+        '''
+        Take all event id by creator_id
+        '''
         events = Events.query.filter_by(creator_id = user_id)
 
-        ''' Take newest event_id '''
+        '''
+        Take newest event_id
+        '''
         event = events[-1]
         event = marshal(event, Events.response_fields)
 
         event_id = event['event_id']
         invited_id = invitation_data['invited_id']
 
-        ''' Add to init model '''
+        '''
+        Add to init model
+        '''
         invitation = Invitations(event_id, invited_id, 0)
 
         db.session.add(invitation)
@@ -111,7 +116,7 @@ class InvitationsResource(Resource):
         invitations_query = Invitations.query.filter_by(event_id=event_id, invited_id=user_id, status=0).first()
 
         if invitations_query is None:
-            return {'status':'no invitations'}, 404
+            return {'status':'NOT_FOUND'}, 404
         
         invitations_query.status = 1
         db.session.commit()
@@ -123,6 +128,7 @@ class InvitationsRejectResource(Resource):
     """
     class for reject invitations
     """
+
     @jwt_required
     def put(self, event_id):
 
@@ -135,7 +141,7 @@ class InvitationsRejectResource(Resource):
         invitations_query = Invitations.query.filter_by(event_id=event_id, invited_id=user_id, status=0).first()
 
         if invitations_query is None:
-            return {'status':'no invitations'}, 404
+            return {'status':'NOT_FOUND'}, 404
         
         invitations_query.status = -1
         db.session.commit()
@@ -143,23 +149,28 @@ class InvitationsRejectResource(Resource):
         return marshal(invitations_query, Invitations.response_fields), 200, {'Content-Type':'application/json'}
 
 class DeclineEventResource(Resource):
+
     """
     class for user decline event, when the event have been generated
     """
 
     @jwt_required
     def delete(self, event_id):
+
         """
         when user decline for the event, then user invitation for that event will be deleted
         """
         user = get_jwt_identity()
         user_id = user['user_id']
 
-        invitation_query = Invitations.query.filter_by(status = 1, invited_id = user_id)
+        invitation_query = Invitations.query.filter_by(status = 1, invited_id = user_id).all()
         
         '''
         find invitation of user in specific event_id, then delete it
         '''
+        if invitation_query == []:
+            return {'status': 'NOT_FOUND'}, 404
+
         for invitation in invitation_query:
             invitation_new = marshal(invitation, Invitations.response_fields)
             if int(event_id) == invitation_new['event_id']:
@@ -167,8 +178,7 @@ class DeclineEventResource(Resource):
                 db.session.commit()
                 return {'status': 'DELETED'}, 200
 
-        if invitation_query is None:
-            return {'status': 'NOT_FOUND'}, 404
+ 
 
 api.add_resource(InvitationsResource, '', '/accept/<event_id>')
 api.add_resource(InvitationsRejectResource, '/reject/<event_id>')
