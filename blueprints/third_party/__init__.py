@@ -64,12 +64,16 @@ class RecommendationPlaceToEat(Resource):
         latitude  = geo['location_suggestions'][0]['latitude']
         longitude  = geo['location_suggestions'][0]['longitude']
 
-        zomato_request = requests.get(self.zmt_host + '/search', params={'lat': latitude, 'lon': longitude, 'category': dominant_preference}, headers={'user-key' : self.zmt_apikey})
+        zomato_request = requests.get(self.zmt_host + '/search', params={'lat': latitude, 'lon': longitude, 'category':dominant_preference}, headers={'user-key' : self.zmt_apikey})
         restaurants = zomato_request.json()
+
+        restaurant_count = len(restaurants['restaurants'])
+        idx_restaurant = list(range(0,restaurant_count))
+        restaurant_show = random.sample(idx_restaurant,3)
 
         restaurant_list = []
 
-        for restaurant in range(0,3):
+        for restaurant in restaurant_show:
             response_dummy = {
                 'place' : restaurants['restaurants'][restaurant]['restaurant']['name'],
                 'place_location' : restaurants['restaurants'][restaurant]['restaurant']['location']['address'],
@@ -79,8 +83,6 @@ class RecommendationPlaceToEat(Resource):
         
         event_query = Events.query.get(event_id)
         event_query.preference = dominant_preference
-        # event_query.place_name = restaurant_list[0]['place']
-        # event_query.place_location = restaurant_list[0]['place_location']
         db.session.commit()
 
         return restaurant_list, 200, {'Content-Type' : 'application/json'}
@@ -139,8 +141,8 @@ class RecommendationPlaceToVacation(Resource):
 
         location_request = requests.get(location_host, params={'q':dominant_preference, 'key':location_key})
         geo = location_request.json()   
-        latitude  = geo['results'][1]['bounds']['southwest']['lat']
-        longitude = geo['results'][1]['bounds']['southwest']['lng']
+        latitude  = geo['results'][0]['bounds']['southwest']['lat']
+        longitude = geo['results'][0]['bounds']['southwest']['lng']
 
         latitude = int(latitude)
         latitude_min = latitude - 2
@@ -170,8 +172,6 @@ class RecommendationPlaceToVacation(Resource):
         
         event_query = Events.query.get(event_id)
         event_query.preference = dominant_preference
-        # event_query.place_name = vacation_list[0]['place']
-        # event_query.place_location = dominant_preference
         db.session.commit()
 
         return vacation_list, 200, {'Content-Type' : 'application/json'}
@@ -229,15 +229,15 @@ class RecommendationPlaceToHike(Resource):
         location_request = requests.get(location_host, params={'q':dominant_preference, 'key':location_key})
         geo = location_request.json()
 
-        latitude  = geo['results'][1]['bounds']['southwest']['lat']
-        longitude = geo['results'][1]['bounds']['southwest']['lng']
+        latitude  = geo['results'][0]['bounds']['southwest']['lat']
+        longitude = geo['results'][0]['bounds']['southwest']['lng']
         maxDistance = 200
         
         hiking_request = requests.get(self.hiking_host, params={'lat': latitude, 'lon': longitude, 'maxDistance': maxDistance, 'key':self.hiking_key})
         hikings = hiking_request.json()
         hiking_list = []
 
-        for hiking in range(len(hikings['trails'])):
+        for hiking in range(3):
             
             response_dummy = {
                 'place' : hikings['trails'][hiking]['name'],
@@ -249,11 +249,9 @@ class RecommendationPlaceToHike(Resource):
 
         event_query = Events.query.get(event_id)
         event_query.preference = dominant_preference
-        # event_query.place_name = hiking_list[0]['place']
-        # event_query.place_location = dominant_preference
         db.session.commit()
     
-        return hiking_list, 200, {'Content-Type' : 'application/json'}
+        return hikings, 200, {'Content-Type' : 'application/json'}
 
 
 api.add_resource(RecommendationPlaceToEat,'/eat/<event_id>','/eat')
