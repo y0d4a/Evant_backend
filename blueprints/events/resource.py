@@ -94,6 +94,8 @@ class EventsResource(Resource):
         parser.add_argument('end_date_parameter', location='json', required=False)
         parser.add_argument('preference', location='json', required=False)
         parser.add_argument('duration', location='json', required=False)
+        parser.add_argument('creator_confirmation', location='json', type=int, required=False)
+
 
         event_data = parser.parse_args()
 
@@ -124,7 +126,9 @@ class EventsResource(Resource):
         if event_data['preference'] is not None:
             event_query.preference = event_data['preference'] 
         if event_data['duration'] is not None:
-            event_query.duration = event_data['duration']  
+            event_query.duration = event_data['duration']
+        if event_data['creator_confirmation'] is not None:
+            event_query.creator_confirmation = event_data['creator_confirmation']    
         
         db.session.commit()
 
@@ -319,6 +323,10 @@ class EventsDatesGenerateResource(Resource):
         creator_id = creator['creator_id']
 
         list_of_id = []
+
+        '''get creator'''
+        creator_query = Users.query.get(creator_id)
+        list_of_id.append(creator_query.user_id)
         
         '''
         get all invited_id
@@ -530,15 +538,15 @@ class BookedDateResource(Resource):
         all_booked_dates = []
 
         '''get event as creator'''
-        events_as_creator = Events.query.filter_by(creator_id=user_id).all()
+        events_as_creator = Events.query.filter_by(creator_id=user_id, creator_confirmation=1).all()
 
         '''input range date to booked_dates'''
         for event in events_as_creator:
-            print(event.event_name)
+            print(event.place_name)
             start_date = event.start_date
             end_date = event.end_date
             dates = rangeBetweenDate(start_date,end_date)
-            if dates == []:
+            if dates == [] or event.place_name==None:
                 continue
             
             all_booked_dates+=dates
@@ -561,7 +569,7 @@ class BookedDateResource(Resource):
             start_date = my_event.start_date
             end_date = my_event.end_date
             dates = rangeBetweenDate(start_date,end_date)
-            if dates == []:
+            if dates == [] or my_event.place_name == None:
                 continue
 
             all_booked_dates+=dates
