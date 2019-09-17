@@ -8,7 +8,3 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@localhost:3306/evant_test'
-
-class SyamsulLocalConfig(Config):
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:alta123@localhost:3306/evant'
