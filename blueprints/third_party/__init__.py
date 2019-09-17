@@ -164,7 +164,7 @@ class RecommendationPlaceToVacation(Resource):
             photo = photo_request.json()
             response_dummy = {
                 'place' : vacations['features'][vacation]['properties']['name'],
-                'place_location' : dominat_preference,
+                'place_location' : dominant_preference,
                 'photo' : photo['preview']['source']
             }
 

@@ -17,7 +17,7 @@ CORS(app)
 try:
     env = os.environ.get('FLASK_ENV', 'development')
     if env == 'testing':
-        app.config.from_object(config.TestingConfig)
+        app.config.from_object(config.SyamsulLocalConfig)
     else:
         app.config.from_object(config.DevelopmentConfig)
 
