@@ -28,14 +28,18 @@ class InvitationsResource(Resource):
 
         invitations_query = Invitations.query.filter_by(invited_id=user_id, status=0).all()
 
+
         if invitations_query == []:
             return [], 200
+        
+
         
         list_event_temporrary = []
 
         for event in invitations_query:
             event_new = marshal(event, Invitations.response_fields)
             event_id = event_new['event_id']
+
 
             '''take event object with that event is in user invited'''
             from_event_table = Events.query.get(event_id)
@@ -44,12 +48,16 @@ class InvitationsResource(Resource):
             '''take user object in creator condition'''
             creator = Users.query.get(from_event_table['creator_id'])
             creator = marshal(creator, Users.response_fields)
-
+            
             '''take event category, duration, start, and endDate'''
             event_duration = from_event_table['duration']
             event_start = from_event_table['start_date']
             event_end = from_event_table['end_date']
             event_category = from_event_table['category']
+            event_preference = from_event_table['preference']
+
+            if event_preference is not None :
+                continue
 
             response_fields_dummy = {
                 'event_id' : from_event_table['event_id'],

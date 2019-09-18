@@ -156,9 +156,6 @@ class RecommendationPlaceToVacation(Resource):
 
         vacations = vacation_request.json()
 
-        # vacation_count = len(vacations['features'])
-        # idx_vacation = list(range(0,vacation_count))
-        # vacation_show = random.sample(idx_vacation,3)
 
         vacation_list = []
 
