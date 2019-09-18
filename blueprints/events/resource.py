@@ -480,7 +480,7 @@ class GetAllParticipantsEvent(Resource):
         get participant_id as invited
         '''
         list_of_participants = []
-        participants_query = Invitations.query.filter_by(event_id = event_id, status=1)
+        participants_query = Invitations.query.filter_by(event_id = event_id)
         for participant in participants_query:
             participant_new = marshal(participant, Invitations.response_fields)
             participant_id = participant_new['invited_id']
