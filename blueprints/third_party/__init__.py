@@ -156,16 +156,14 @@ class RecommendationPlaceToVacation(Resource):
 
         vacations = vacation_request.json()
 
-        vacation_count = len(vacations['features'])
-        idx_vacation = list(range(0,vacation_count))
-        vacation_show = random.sample(idx_vacation,3)
 
         vacation_list = []
 
-        for vacation in vacation_show:
+        for vacation in range(3):
             xid = vacations['features'][vacation]['properties']['xid']  
             photo_request = requests.get(self.photo_holiday_host+ str(xid), headers={'x-rapidapi-key' : self.holiday_key})
             photo = photo_request.json()
+            print(photo)
             response_dummy = {
                 'place' : vacations['features'][vacation]['properties']['name'],
                 'place_location' : dominant_preference,
