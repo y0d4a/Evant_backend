@@ -248,6 +248,8 @@ class EventsHistoryResource(Resource):
                 as_creator = marshal(as_creator_query, Users.response_fields)
                 dict_temp["event"] = event_new
                 dict_temp["creator_name"] = as_creator['username']
+                list_event.append(dict_temp)
+
 
         '''
         events as creator
