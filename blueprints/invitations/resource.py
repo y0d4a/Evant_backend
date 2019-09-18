@@ -146,7 +146,7 @@ class InvitationsRejectResource(Resource):
         identity = get_jwt_identity()
         user_id = int(identity['user_id'])
 
-        invitations_query = Invitations.query.filter_by(event_id=event_id, invited_id=user_id, status=0).first()
+        invitations_query = Invitations.query.filter_by(event_id=event_id, invited_id=user_id).first()
 
         if invitations_query is None:
             return {'status':'NOT_FOUND'}, 404
