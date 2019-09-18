@@ -491,6 +491,7 @@ class GetAllParticipantsEvent(Resource):
             dictionary_participant['username'] = user_as_participant['username']
             dictionary_participant['fullname'] = user_as_participant['fullname']
             dictionary_participant['status'] = 'participant'
+            dictionary_participant['invitation_status'] = participant.status
             list_of_participants.append(dictionary_participant)
         
         list_of_participants.append(creator_identity)
