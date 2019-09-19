@@ -59,13 +59,19 @@ class UserRequest(Resource):
 
         user_qry = Users.query.get(id)
 
+        pattern = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        result = re.match(pattern, args['email'])
+
         if user_qry is None:
             return {'status' : 'NOT_FOUND'}, 404
-
+        
         if args['username'] is not None:
             user_qry.username = args['username']
         if args['email'] is not None:
-            user_qry.email = args['email']
+            if result:
+                user_qry.email = args['email']
+            else:
+                return "Error Email", 401, {'Content-Type' : 'application/json'}
         if args['password'] is not None:
             user_qry.password = args['password']
         if args['gender'] is not None:
