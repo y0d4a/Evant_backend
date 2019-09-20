@@ -186,6 +186,21 @@ class DeclineEventResource(Resource):
                 db.session.commit()
                 return {'status': 'DELETED'}, 200
 
+# class GetResponseNotification(Resource):
+#     """
+#     class to collect event_id and event_name for notification
+#     """
+#     def get(self):
+#         '''
+#         get list of event_id and 
+#         '''
+#         user = get_jwt_identity()
+#         user_id = user['user_id']
+
+#         invitation_query = Invitations.query.filter_by(invited_id=user_id)
+#         for 
+
+
  
 
 api.add_resource(InvitationsResource, '', '/accept/<event_id>')
