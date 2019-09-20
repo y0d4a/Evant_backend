@@ -22,9 +22,9 @@ script:
     = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:${PASSWORD}@cobaevant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant'\n\nclass
     TestingConfig(Config):\n\tTESTING = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:${PASSWORD}@cobaevant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant_test'"
     > config.py
-  - echo -e "export FLASK_ENV=testing"
-  - echo -e "pytest --cov=blueprints tests"
-  - echo -e "export FLASK_ENV=development"
+  - export FLASK_ENV=testing
+  - pytest --cov=blueprints tests
+  - export FLASK_ENV=development
 after_script:
   - docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
   - ls
