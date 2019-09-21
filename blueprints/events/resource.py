@@ -95,6 +95,8 @@ class EventsResource(Resource):
         parser.add_argument('preference', location='json', required=False)
         parser.add_argument('duration', location='json', required=False)
         parser.add_argument('creator_confirmation', location='json', type=int, required=False)
+        parser.add_argument('place_image', location='json', required=False)
+
 
 
         event_data = parser.parse_args()
@@ -104,7 +106,9 @@ class EventsResource(Resource):
         if event_query is None:
             return {'status':'NOT_FOUND'}, 404
 
-        '''to check if the field is edited or not'''    
+        '''to check if the field is edited or not'''
+        if event_data['place_name'] is not None:
+            event_query.place_name = event_data['place_name']    
         if event_data['category'] is not None:
             event_query.category = event_data['category'] 
         if event_data['event_name'] is not None:
@@ -607,6 +611,7 @@ class CountMonthResource(Resource):
                 year_list.append(year)
 
         return {'month':month_list, 'year':year_list}
+
 
 api.add_resource(EventsResource, '','/<event_id>')
 api.add_resource(EventsOngoingResource, '/ongoing')
