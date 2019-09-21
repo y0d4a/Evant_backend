@@ -107,8 +107,8 @@ class EventsResource(Resource):
             return {'status':'NOT_FOUND'}, 404
 
         '''to check if the field is edited or not'''
-        if event_data['place_name'] is not None:
-            event_query.place_name = event_data['place_name']    
+        if event_data['place_image'] is not None:
+            event_query.place_image = event_data['place_image']    
         if event_data['category'] is not None:
             event_query.category = event_data['category'] 
         if event_data['event_name'] is not None:
