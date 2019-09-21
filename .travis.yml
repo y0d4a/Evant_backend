@@ -1,5 +1,7 @@
 sudo: required
-language: generic
+language: python
+python:
+  - "3.6"
 services:
   - docker
 os:
@@ -15,13 +17,18 @@ before_script:
   - chmod 600 deploy_rsa
   - ssh-add deploy_rsa
   - docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
+install:
+  - pip3 install -r requirements.txt
 script:
   - sudo chmod +x deploy.sh
   - sudo chmod 600 deploy_rsa
   - sudo echo -e "class Config():\n\tpass\nclass DevelopmentConfig(Config):\n\tDEBUG
-    = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:${PASSWORD}@evant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant'\n\nclass
-    TestingConfig(Config):\n\tTESTING = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:${PASSWORD}@evant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant_testing'"
+    = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:${PASSWORD}@cobaevant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant'\n\nclass
+    TestingConfig(Config):\n\tTESTING = True\n\tSQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:${PASSWORD}@cobaevant.cwpvjetmrbmv.ap-southeast-1.rds.amazonaws.com:3306/evant_test'"
     > config.py
+  - export FLASK_ENV=testing
+  - pytest --cov=blueprints tests
+  - export FLASK_ENV=development
 after_script:
   - docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
   - ls

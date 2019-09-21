@@ -15,6 +15,7 @@ class Users(db.Model):
     fullname = db.Column(db.String(100), nullable = True)
     address = db.Column(db.String(100), nullable = True)
     phone = db.Column(db.String(30), nullable = True)
+    token_broadcast = db.Column(db.String(400), nullable = True)
 
     response_fields = {
         'user_id' : fields.Integer,
@@ -25,7 +26,8 @@ class Users(db.Model):
         'status_first_login' : fields.Boolean,
         'fullname' : fields.String,
         'address' : fields.String,
-        'phone' : fields.String,      
+        'phone' : fields.String,
+        'token_broadcast' : fields.String,     
     }
 
     jwt_response_fields = {
@@ -37,9 +39,10 @@ class Users(db.Model):
         'fullname' : fields.String,
         'address' : fields.String,
         'phone' : fields.String,
+        'token_broadcast' : fields.String,
     }
 
-    def __init__(self, username, email, password=None, gender=None, status_first_login=None, fullname = None, address = None, phone = None):
+    def __init__(self, username, email, password=None, gender=None, status_first_login=None, fullname = None, address = None, phone = None, token_broadcast = None):
         self.username = username
         self.email = email
         self.password = password
@@ -48,6 +51,7 @@ class Users(db.Model):
         self.fullname = fullname
         self.address = address
         self.phone = phone
+        self.token_broadcast = token_broadcast
     
     def __repr__(self):
         return '<Users %r>' % self.user_id
