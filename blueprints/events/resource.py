@@ -255,6 +255,7 @@ class EventsHistoryResource(Resource):
                 list_event.append(dict_temp)
 
 
+
         '''
         events as creator
         '''

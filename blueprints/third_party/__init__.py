@@ -166,7 +166,7 @@ class RecommendationPlaceToVacation(Resource):
             print(photo)
             response_dummy = {
                 'place' : vacations['features'][vacation]['properties']['name'],
-                'place_location' : dominant_preference,
+                'place_location' : dominat_preference,
                 'photo' : photo['preview']['source']
             }
 
@@ -244,11 +244,10 @@ class RecommendationPlaceToHike(Resource):
         
         hiking_list = []
 
-        for hiking in hiking_show:
-            
+        for hiking in hiking_show:    
             response_dummy = {
                 'place' : hikings['trails'][hiking]['name'],
-                'place_location' : dominant_preference,
+                # 'place_location' : dominant_preference,
                 'photo' : hikings['trails'][hiking]['imgMedium']
             }
 
@@ -258,7 +257,7 @@ class RecommendationPlaceToHike(Resource):
         event_query.preference = dominant_preference
         db.session.commit()
     
-        return hiking_list, 200, {'Content-Type' : 'application/json'}
+        return hikings, 200, {'Content-Type' : 'application/json'}
 
 
 api.add_resource(RecommendationPlaceToEat,'/eat/<event_id>','/eat')
