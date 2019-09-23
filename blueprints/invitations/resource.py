@@ -28,14 +28,18 @@ class InvitationsResource(Resource):
 
         invitations_query = Invitations.query.filter_by(invited_id=user_id, status=0).all()
 
+
         if invitations_query == []:
             return [], 200
+        
+
         
         list_event_temporrary = []
 
         for event in invitations_query:
             event_new = marshal(event, Invitations.response_fields)
             event_id = event_new['event_id']
+
 
             '''take event object with that event is in user invited'''
             from_event_table = Events.query.get(event_id)
@@ -44,12 +48,16 @@ class InvitationsResource(Resource):
             '''take user object in creator condition'''
             creator = Users.query.get(from_event_table['creator_id'])
             creator = marshal(creator, Users.response_fields)
-
+            
             '''take event category, duration, start, and endDate'''
             event_duration = from_event_table['duration']
             event_start = from_event_table['start_date']
             event_end = from_event_table['end_date']
             event_category = from_event_table['category']
+            event_preference = from_event_table['preference']
+
+            if event_preference is not None :
+                continue
 
             response_fields_dummy = {
                 'event_id' : from_event_table['event_id'],
@@ -138,7 +146,7 @@ class InvitationsRejectResource(Resource):
         identity = get_jwt_identity()
         user_id = int(identity['user_id'])
 
-        invitations_query = Invitations.query.filter_by(event_id=event_id, invited_id=user_id, status=0).first()
+        invitations_query = Invitations.query.filter_by(event_id=event_id, invited_id=user_id).first()
 
         if invitations_query is None:
             return {'status':'NOT_FOUND'}, 404
@@ -177,6 +185,21 @@ class DeclineEventResource(Resource):
                 db.session.delete(invitation)
                 db.session.commit()
                 return {'status': 'DELETED'}, 200
+
+# class GetResponseNotification(Resource):
+#     """
+#     class to collect event_id and event_name for notification
+#     """
+#     def get(self):
+#         '''
+#         get list of event_id and 
+#         '''
+#         user = get_jwt_identity()
+#         user_id = user['user_id']
+
+#         invitation_query = Invitations.query.filter_by(invited_id=user_id)
+#         for 
+
 
  
 

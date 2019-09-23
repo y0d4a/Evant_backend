@@ -1,6 +1,7 @@
 from tests import app, client, cache, create_token, reset_database
 import json
 
+#integration test
 class TestDatesCrud():
     """class to test dates resource"""
 

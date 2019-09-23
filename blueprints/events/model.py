@@ -20,6 +20,7 @@ class Events(db.Model):
     end_date = db.Column(db.String(100), nullable = True)   
     preference = db.Column(db.String(100), nullable = True)
     creator_confirmation = db.Column(db.Integer, nullable=True)
+    place_image = db.Column(db.String(1000), nullable=True)
 
 
     response_fields = {
@@ -36,10 +37,12 @@ class Events(db.Model):
         'start_date': fields.String,
         'end_date': fields.String,
         'preference': fields.String,
-        'creator_confirmation':fields.Integer
+        'creator_confirmation':fields.Integer,
+        'place_image':fields.String
     }
 
-    def __init__(self, creator_id, category, event_name, start_date_parameter, end_date_parameter, duration, status, place_name = None, place_location = None, start_date = None, end_date = None, preference = None, creator_confirmation=1):
+    def __init__(self, creator_id, category, event_name, start_date_parameter, end_date_parameter, duration, status, place_name = None, place_location = None, start_date = None, end_date = None, preference = None, creator_confirmation=1, place_image=''):
+        self.place_image = place_image
         self.creator_confirmation = creator_confirmation
         self.creator_id = creator_id
         self.category = category

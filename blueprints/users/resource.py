@@ -55,17 +55,25 @@ class UserRequest(Resource):
         parser.add_argument('fullname', location = 'json', required=False)
         parser.add_argument('address', location = 'json', required=False)
         parser.add_argument('phone', location = 'json', required=False)
+        parser.add_argument('token_broadcast', location = 'json', required=False)
+        
         args = parser.parse_args()
 
         user_qry = Users.query.get(id)
 
+        pattern = '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+
         if user_qry is None:
             return {'status' : 'NOT_FOUND'}, 404
-
+        
         if args['username'] is not None:
             user_qry.username = args['username']
         if args['email'] is not None:
-            user_qry.email = args['email']
+            result = re.match(pattern, args['email'])
+            if result:
+                user_qry.email = args['email']
+            else:
+                return "Error Email", 401, {'Content-Type' : 'application/json'}
         if args['password'] is not None:
             user_qry.password = args['password']
         if args['gender'] is not None:
@@ -76,6 +84,8 @@ class UserRequest(Resource):
             user_qry.address = args['address']
         if args['phone'] is not None:
             user_qry.phone = args['phone']
+        if args['phone'] is not None:
+            user_qry.token_broadcast = args['token_broadcast']
 
         db.session.commit()
 
@@ -96,7 +106,13 @@ class UserLogin(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('username', location='json', required=True, help = "Your input username is invalid")
         parser.add_argument('password', location='json', required=True, help = "Your input password is invalid")
+        parser.add_argument('token_broadcast', location='json', required=False, help = "No token")
         args = parser.parse_args()
+        
+        user_query = Users.query.filter_by(username=args['username']).first()
+        if args['token_broadcast'] is not None:
+            user_query.token_broadcast = args['token_broadcast']
+            db.session.commit()
         
         user_query = Users.query.filter_by(username=args['username']).first()
         user = marshal(user_query, Users.response_fields)
@@ -156,6 +172,7 @@ class UserMakeRegistration(Resource):
         parser.add_argument('fullname', location='json', required=False)
         parser.add_argument('address', location='json', required=False)
         parser.add_argument('phone', location='json', required=False)
+        parser.add_argument('token_broadcast', location='json', required=False)
         args = parser.parse_args()
 
         password = sha256_crypt.encrypt(args['password'])
@@ -168,7 +185,7 @@ class UserMakeRegistration(Resource):
         
         status_first_login = True
         if result:
-            user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'])
+            user = Users(args['username'], args['email'], password, args['gender'], status_first_login, args['fullname'], args['address'], args['phone'], args['token_broadcast'])
             db.session.add(user)
             db.session.commit()
 
@@ -249,7 +266,13 @@ class UserLoginWithGoogle(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('email', location='json', required=True, help = "Your input username is invalid")
         parser.add_argument('token_google', location='json', required=True, help = "Your input password is invalid")
+        parser.add_argument('token_broadcast', location='json', required=False, help = "No token")
         args = parser.parse_args()
+        
+        user_query = Users.query.filter_by(email=args['email']).first()
+        if args['token_broadcast'] is not None:
+            user_query.token_broadcast = args['token_broadcast']
+            db.session.commit()
 
         identity_jwt = Users.query.filter_by(email=args['email']).first()
         user_identity = marshal(identity_jwt, Users.jwt_response_fields)

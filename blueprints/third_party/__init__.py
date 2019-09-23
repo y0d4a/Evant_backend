@@ -156,12 +156,14 @@ class RecommendationPlaceToVacation(Resource):
 
         vacations = vacation_request.json()
 
+
         vacation_list = []
 
         for vacation in range(3):
             xid = vacations['features'][vacation]['properties']['xid']  
             photo_request = requests.get(self.photo_holiday_host+ str(xid), headers={'x-rapidapi-key' : self.holiday_key})
             photo = photo_request.json()
+            print(photo)
             response_dummy = {
                 'place' : vacations['features'][vacation]['properties']['name'],
                 'place_location' : dominat_preference,
@@ -235,10 +237,14 @@ class RecommendationPlaceToHike(Resource):
         
         hiking_request = requests.get(self.hiking_host, params={'lat': latitude, 'lon': longitude, 'maxDistance': maxDistance, 'key':self.hiking_key})
         hikings = hiking_request.json()
+
+        hiking_count = len(hikings['trails'])
+        idx_hiking = list(range(0,hiking_count))
+        hiking_show = random.sample(idx_hiking,3)
+        
         hiking_list = []
 
-        for hiking in range(3):
-            
+        for hiking in hiking_show:    
             response_dummy = {
                 'place' : hikings['trails'][hiking]['name'],
                 # 'place_location' : dominant_preference,

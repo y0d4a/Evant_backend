@@ -95,6 +95,8 @@ class EventsResource(Resource):
         parser.add_argument('preference', location='json', required=False)
         parser.add_argument('duration', location='json', required=False)
         parser.add_argument('creator_confirmation', location='json', type=int, required=False)
+        parser.add_argument('place_image', location='json', required=False)
+
 
 
         event_data = parser.parse_args()
@@ -104,7 +106,9 @@ class EventsResource(Resource):
         if event_query is None:
             return {'status':'NOT_FOUND'}, 404
 
-        '''to check if the field is edited or not'''    
+        '''to check if the field is edited or not'''
+        if event_data['place_image'] is not None:
+            event_query.place_image = event_data['place_image']    
         if event_data['category'] is not None:
             event_query.category = event_data['category'] 
         if event_data['event_name'] is not None:
@@ -248,6 +252,9 @@ class EventsHistoryResource(Resource):
                 as_creator = marshal(as_creator_query, Users.response_fields)
                 dict_temp["event"] = event_new
                 dict_temp["creator_name"] = as_creator['username']
+                list_event.append(dict_temp)
+
+
 
         '''
         events as creator
@@ -480,7 +487,7 @@ class GetAllParticipantsEvent(Resource):
         get participant_id as invited
         '''
         list_of_participants = []
-        participants_query = Invitations.query.filter_by(event_id = event_id, status=1)
+        participants_query = Invitations.query.filter_by(event_id = event_id)
         for participant in participants_query:
             participant_new = marshal(participant, Invitations.response_fields)
             participant_id = participant_new['invited_id']
@@ -491,6 +498,7 @@ class GetAllParticipantsEvent(Resource):
             dictionary_participant['username'] = user_as_participant['username']
             dictionary_participant['fullname'] = user_as_participant['fullname']
             dictionary_participant['status'] = 'participant'
+            dictionary_participant['invitation_status'] = participant.status
             list_of_participants.append(dictionary_participant)
         
         list_of_participants.append(creator_identity)
@@ -604,6 +612,7 @@ class CountMonthResource(Resource):
                 year_list.append(year)
 
         return {'month':month_list, 'year':year_list}
+
 
 api.add_resource(EventsResource, '','/<event_id>')
 api.add_resource(EventsOngoingResource, '/ongoing')
