@@ -36,8 +36,8 @@ jwt = JWTManager(app)
 ######################
 # DATABASE
 ######################
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:alta123@localhost:3306/eCommerce'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:Altabatch3@databasesyamsulclub.cdbtzlgoj2dv.ap-southeast-1.rds.amazonaws.com:3306/eCommerce'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:XXX@localhost:3306/eCommerce'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:XXX@databasesyamsulclub.cdbtzlgoj2dv.ap-southeast-1.rds.amazonaws.com:3306/eCommerce'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
