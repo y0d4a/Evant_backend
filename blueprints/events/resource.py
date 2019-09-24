@@ -416,7 +416,7 @@ class EventsDatesGenerateResource(Resource):
                 date_match["result" + index] = "ALL OF YOU CAN ATTEND IN THIS DATES"   
                 list_date_match.append(value)
                 list_attendace_match.append(dict_user_opinion)
-            elif (len(dictionary_date) / 2) > agreement_count:
+            elif (len(dictionary_date) / 2) >= agreement_count:
                 date_match["result" + index] = "DATES NOT FOUND"        
             else :
                 date_match["result" + index] = "MOST OF YOU AVAILABLE IN THIS DATES"       
